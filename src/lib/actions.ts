@@ -16,6 +16,8 @@ import {
   updateBusiness,
   disableBusiness,
   setBusinessStatus,
+  syncBusinessLogistics,
+  syncBusinessRaiders,
   type CreateBusinessInput,
   type UpdateBusinessInput,
 } from "@/lib/businesses";
@@ -140,6 +142,30 @@ export async function createLogisticsAction(input: CreateLogisticsInput): Promis
   return toActionResult(async () => {
     await createLogistics(session.token, input);
     revalidatePath("/dashboard/logistics");
+  });
+}
+
+export async function syncBusinessLogisticsAction(
+  businessId: string,
+  logisticsIds: string[]
+): Promise<ActionResult> {
+  const session = await requireSession();
+  return toActionResult(async () => {
+    await syncBusinessLogistics(session.token, businessId, logisticsIds);
+    revalidatePath(`/dashboard/businesses/${businessId}`);
+    revalidatePath("/dashboard/logistics");
+  });
+}
+
+export async function syncBusinessRaidersAction(
+  businessId: string,
+  raiderIds: string[]
+): Promise<ActionResult> {
+  const session = await requireSession();
+  return toActionResult(async () => {
+    await syncBusinessRaiders(session.token, businessId, raiderIds);
+    revalidatePath(`/dashboard/businesses/${businessId}`);
+    revalidatePath("/dashboard/raiders");
   });
 }
 

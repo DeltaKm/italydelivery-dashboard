@@ -83,6 +83,23 @@ export async function setBusinessStatus(token: string, id: string, expired: bool
   });
 }
 
+// Solo ADMIN: sincronizza logistiche/raider collegati a un business (sostituisce l'insieme corrente)
+export async function syncBusinessLogistics(token: string, businessId: string, logisticsIds: string[]) {
+  return backendFetch(`/v2/admin/businesses/${businessId}/logistics`, {
+    method: "PATCH",
+    token,
+    body: { logisticsIds },
+  });
+}
+
+export async function syncBusinessRaiders(token: string, businessId: string, raiderIds: string[]) {
+  return backendFetch(`/v2/admin/businesses/${businessId}/raiders`, {
+    method: "PATCH",
+    token,
+    body: { raiderIds },
+  });
+}
+
 export async function getBusiness(token: string, role: Role, id: string): Promise<BusinessDetail> {
   const data = await backendFetch<{ business: BusinessDetail }>(
     `${businessesPathForRole(role)}/${id}`,
