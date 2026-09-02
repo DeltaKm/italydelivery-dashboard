@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Check, Pencil, Trash2 } from "lucide-react";
+import { Plus, Check, Pencil, Trash2, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,6 +53,7 @@ import {
   updateRaiderAction,
   removeRaiderAction,
   setRaiderActiveAction,
+  syncRaiderBusinessesAction,
 } from "@/lib/actions";
 
 const VEHICLE_LABEL: Record<Vehicle, string> = {
@@ -100,6 +101,8 @@ export default function RaidersView({
   const [removing, setRemoving] = useState<string | null>(null);
   const [editing, setEditing] = useState<RaiderListItem | null>(null);
   const [togglingActive, setTogglingActive] = useState<string | null>(null);
+  const [editingBusinesses, setEditingBusinesses] = useState<RaiderListItem | null>(null);
+  const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
 
   // Stato del form di creazione (i campi Select non sono nativi, servono controllati)
   const [vehicle, setVehicle] = useState<Vehicle | "">("");
@@ -212,6 +215,28 @@ export default function RaidersView({
 
   function toggleAssign(id: string, checked: boolean) {
     setAssignToBusinessIds((prev) => (checked ? [...prev, id] : prev.filter((v) => v !== id)));
+  }
+
+  function openBusinessEditor(record: RaiderListItem) {
+    setEditingBusinesses(record);
+    setSelectedBusinesses((record.businesses ?? []).map((b) => b.id));
+  }
+
+  function toggleSelectedBusiness(id: string, checked: boolean) {
+    setSelectedBusinesses((prev) => (checked ? [...prev, id] : prev.filter((v) => v !== id)));
+  }
+
+  async function saveBusinesses() {
+    if (!editingBusinesses) return;
+    setLoading(true);
+    const result = await syncRaiderBusinessesAction(editingBusinesses.id, selectedBusinesses);
+    setLoading(false);
+    if (result.ok) {
+      toast.success("Attività assegnate aggiornate");
+      setEditingBusinesses(null);
+    } else {
+      toast.error(result.message);
+    }
   }
 
   return (
@@ -329,6 +354,11 @@ export default function RaidersView({
               )}
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-1">
+                  {role === "ADMIN" && (
+                    <Button variant="outline" size="icon-sm" onClick={() => openBusinessEditor(r)}>
+                      <Building2 className="size-3.5" />
+                    </Button>
+                  )}
                   <Button variant="outline" size="icon-sm" onClick={() => openEditor(r)}>
                     <Pencil className="size-3.5" />
                   </Button>
@@ -439,6 +469,39 @@ export default function RaidersView({
               </Button>
             </SheetFooter>
           </form>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={!!editingBusinesses} onOpenChange={(v) => !v && setEditingBusinesses(null)}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              {editingBusinesses
+                ? `Attività assegnate a ${editingBusinesses.name} ${editingBusinesses.surname}`
+                : ""}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="flex flex-col gap-3 overflow-y-auto px-4">
+            {businesses.map((b) => (
+              <label key={b.id} className="flex items-start gap-2 text-sm">
+                <Checkbox
+                  checked={selectedBusinesses.includes(b.id)}
+                  onCheckedChange={(checked) => toggleSelectedBusiness(b.id, checked === true)}
+                />
+                <span>
+                  {b.name} — <span className="text-muted-foreground">{b.address}</span>
+                </span>
+              </label>
+            ))}
+            {businesses.length === 0 && (
+              <p className="text-sm text-muted-foreground">Nessuna attività disponibile.</p>
+            )}
+          </div>
+          <SheetFooter>
+            <Button onClick={saveBusinesses} disabled={loading}>
+              {loading ? "Salvataggio..." : "Salva"}
+            </Button>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
 

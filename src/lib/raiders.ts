@@ -81,6 +81,15 @@ export async function removeRaider(token: string, role: Role, id: string) {
   return backendFetch(`${raidersPathForRole(role)}/${id}`, { method: "DELETE", token });
 }
 
+// Solo ADMIN: sincronizza le attività assegnate a un raider (sostituisce l'insieme corrente)
+export async function syncRaiderBusinesses(token: string, raiderId: string, businessIds: string[]) {
+  return backendFetch("/v2/admin/raiders/assign", {
+    method: "PATCH",
+    token,
+    body: { raiderId, businessIds },
+  });
+}
+
 // ADMIN: qualsiasi raider. LOGISTICS: raider collegati alle attività gestite.
 // BUSINESS: raider collegati alla propria attività.
 export async function setRaiderActive(token: string, role: Role, id: string, isActive: boolean) {

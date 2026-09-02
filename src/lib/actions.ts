@@ -32,6 +32,7 @@ import {
   updateRaider,
   removeRaider,
   setRaiderActive,
+  syncRaiderBusinesses,
   type CreateRaiderInput,
   type UpdateRaiderInput,
 } from "@/lib/raiders";
@@ -203,6 +204,17 @@ export async function removeRaiderAction(id: string): Promise<ActionResult> {
   const session = await requireSession();
   return toActionResult(async () => {
     await removeRaider(session.token, session.role, id);
+    revalidatePath("/dashboard/raiders");
+  });
+}
+
+export async function syncRaiderBusinessesAction(
+  raiderId: string,
+  businessIds: string[]
+): Promise<ActionResult> {
+  const session = await requireSession();
+  return toActionResult(async () => {
+    await syncRaiderBusinesses(session.token, raiderId, businessIds);
     revalidatePath("/dashboard/raiders");
   });
 }
