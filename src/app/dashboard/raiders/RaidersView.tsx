@@ -1,0 +1,502 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Plus, Check, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import StatusBadge from "@/components/StatusBadge";
+import BadgeListOverflow from "@/components/BadgeListOverflow";
+import type { RaiderListItem, Business, Vehicle } from "@/lib/types";
+import type { Role } from "@/lib/session-constants";
+import {
+  createRaiderAction,
+  approveRaidersAction,
+  updateRaiderAction,
+  removeRaiderAction,
+  setRaiderActiveAction,
+} from "@/lib/actions";
+
+const VEHICLE_LABEL: Record<Vehicle, string> = {
+  CAR: "Auto",
+  BICYCLE: "Bicicletta",
+  MOTORCYCLE: "Moto",
+  VAN: "Furgone",
+  REFRIGERATEDVAN: "Furgone refrigerato",
+  WITHOUTVEHICLE: "A piedi",
+  TRANSIT: "Mezzi pubblici",
+};
+
+const REMOVE_COPY: Record<Role, { title: string; description: string }> = {
+  ADMIN: {
+    title: "Eliminare definitivamente questo raider?",
+    description:
+      "Azione irreversibile: elimina raider e account collegato. Non è possibile se ha consegne attive.",
+  },
+  LOGISTICS: {
+    title: "Rimuovere questo raider?",
+    description: "Rimuove solo il collegamento con l'attività, il raider non viene eliminato.",
+  },
+  BUSINESS: {
+    title: "Rimuovere questo raider?",
+    description: "Rimuove solo il collegamento con la tua attività, il raider non viene eliminato.",
+  },
+  USER: { title: "Rimuovere?", description: "" },
+  RAIDER: { title: "Rimuovere?", description: "" },
+};
+
+export default function RaidersView({
+  raiders,
+  businesses,
+  role,
+}: {
+  raiders: RaiderListItem[];
+  businesses: Business[];
+  role: Role;
+}) {
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [approving, setApproving] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
+  const [editing, setEditing] = useState<RaiderListItem | null>(null);
+  const [togglingActive, setTogglingActive] = useState<string | null>(null);
+
+  // Stato del form di creazione (i campi Select non sono nativi, servono controllati)
+  const [vehicle, setVehicle] = useState<Vehicle | "">("");
+  const [businessId, setBusinessId] = useState("");
+  const [assignToBusinessIds, setAssignToBusinessIds] = useState<string[]>([]);
+  const [editVehicle, setEditVehicle] = useState<Vehicle | "">("");
+
+  const pending = raiders.filter((r) => r.confirmedFromBusiness === false);
+  const activeRaiders = raiders.filter((r) => r.confirmedFromBusiness !== false);
+  const active = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return activeRaiders;
+    return activeRaiders.filter(
+      (r) => `${r.name} ${r.surname}`.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q)
+    );
+  }, [activeRaiders, search]);
+
+  async function onCreate(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!vehicle) {
+      toast.error("Seleziona il veicolo");
+      return;
+    }
+    if (role === "LOGISTICS" && !businessId) {
+      toast.error("Seleziona un'attività");
+      return;
+    }
+    const formData = new FormData(e.currentTarget);
+    setLoading(true);
+    const result = await createRaiderAction({
+      name: String(formData.get("name")),
+      surname: String(formData.get("surname")),
+      vehicle,
+      mobile: String(formData.get("mobile") || "") || undefined,
+      businessId: role === "LOGISTICS" ? businessId : undefined,
+      assignToBusinessIds: role === "ADMIN" ? assignToBusinessIds : undefined,
+      email: String(formData.get("email")),
+      password: String(formData.get("password")),
+    });
+    setLoading(false);
+    if (result.ok) {
+      toast.success("Raider creato");
+      setOpen(false);
+      setVehicle("");
+      setBusinessId("");
+      setAssignToBusinessIds([]);
+    } else {
+      toast.error(result.message);
+    }
+  }
+
+  async function approve(raiderId: string) {
+    setApproving(raiderId);
+    const result = await approveRaidersAction([raiderId]);
+    setApproving(null);
+    if (result.ok) {
+      toast.success("Raider approvato");
+    } else {
+      toast.error(result.message);
+    }
+  }
+
+  function openEditor(record: RaiderListItem) {
+    setEditing(record);
+    setEditVehicle(record.vehicle);
+  }
+
+  async function saveEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editing) return;
+    const formData = new FormData(e.currentTarget);
+    setLoading(true);
+    const result = await updateRaiderAction(editing.id, {
+      name: String(formData.get("name")),
+      surname: String(formData.get("surname")),
+      vehicle: editVehicle || editing.vehicle,
+      mobile: String(formData.get("mobile") || "") || undefined,
+      email: role === "ADMIN" ? String(formData.get("email") || "") || undefined : undefined,
+    });
+    setLoading(false);
+    if (result.ok) {
+      toast.success("Raider aggiornato");
+      setEditing(null);
+    } else {
+      toast.error(result.message);
+    }
+  }
+
+  async function remove(id: string) {
+    setRemoving(id);
+    const result = await removeRaiderAction(id);
+    setRemoving(null);
+    if (result.ok) {
+      toast.success("Raider rimosso");
+    } else {
+      toast.error(result.message);
+    }
+  }
+
+  async function toggleActive(id: string, isActive: boolean) {
+    setTogglingActive(id);
+    const result = await setRaiderActiveAction(id, isActive);
+    setTogglingActive(null);
+    if (result.ok) {
+      toast.success(isActive ? "Raider attivato" : "Raider disattivato");
+    } else {
+      toast.error(result.message);
+    }
+  }
+
+  function toggleAssign(id: string, checked: boolean) {
+    setAssignToBusinessIds((prev) => (checked ? [...prev, id] : prev.filter((v) => v !== id)));
+  }
+
+  return (
+    <>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Button className="gap-1.5" onClick={() => setOpen(true)}>
+          <Plus className="size-4" />
+          Nuovo raider
+        </Button>
+        <Input
+          placeholder="Cerca per nome o email"
+          className="w-64"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {role === "BUSINESS" && pending.length > 0 && (
+        <div className="mb-6">
+          <h3 className="mb-2 text-sm font-semibold">Richieste in attesa di approvazione</h3>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Veicolo</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pending.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell>{r.name} {r.surname}</TableCell>
+                  <TableCell>{r.email}</TableCell>
+                  <TableCell>{VEHICLE_LABEL[r.vehicle] ?? r.vehicle}</TableCell>
+                  <TableCell>
+                    <AlertDialog>
+                      <AlertDialogTrigger
+                        render={<Button size="sm" className="gap-1.5" disabled={approving === r.id} />}
+                      >
+                        <Check className="size-3.5" />
+                        Approva
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Approvare questo raider?</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => approve(r.id)}>Conferma</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Veicolo</TableHead>
+            <TableHead>Stato</TableHead>
+            {role !== "BUSINESS" && <TableHead>Attività</TableHead>}
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {active.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                Nessun raider
+              </TableCell>
+            </TableRow>
+          )}
+          {active.map((r) => (
+            <TableRow
+              key={r.id}
+              className={role === "ADMIN" ? "cursor-pointer" : undefined}
+              onClick={role === "ADMIN" ? () => router.push(`/dashboard/raiders/${r.id}`) : undefined}
+            >
+              <TableCell className="font-medium">{r.name} {r.surname}</TableCell>
+              <TableCell>{r.email}</TableCell>
+              <TableCell>{VEHICLE_LABEL[r.vehicle] ?? r.vehicle}</TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    size="sm"
+                    checked={r.isActive}
+                    disabled={togglingActive === r.id}
+                    onCheckedChange={(checked) => toggleActive(r.id, checked === true)}
+                  />
+                  <StatusBadge color={r.isActive ? "success" : "default"}>
+                    {r.isActive ? "Attivo" : "Disattivato"}
+                  </StatusBadge>
+                  {r.inService !== undefined && (
+                    <StatusBadge color={r.inService ? "processing" : "default"}>
+                      {r.inService ? "In servizio" : "Non in servizio"}
+                    </StatusBadge>
+                  )}
+                </div>
+              </TableCell>
+              {role !== "BUSINESS" && (
+                <TableCell>
+                  <BadgeListOverflow
+                    items={r.businesses ?? []}
+                    title={`Attività di ${r.name} ${r.surname}`}
+                  />
+                </TableCell>
+              )}
+              <TableCell onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1">
+                  <Button variant="outline" size="icon-sm" onClick={() => openEditor(r)}>
+                    <Pencil className="size-3.5" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      render={<Button variant="destructive" size="icon-sm" disabled={removing === r.id} />}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{REMOVE_COPY[role].title}</AlertDialogTitle>
+                        <AlertDialogDescription>{REMOVE_COPY[role].description}</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => remove(r.id)}>Conferma</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Nuovo raider</SheetTitle>
+          </SheetHeader>
+          <form onSubmit={onCreate} className="flex flex-col gap-4 overflow-y-auto px-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="name">Nome</Label>
+              <Input id="name" name="name" required disabled={loading} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="surname">Cognome</Label>
+              <Input id="surname" name="surname" required disabled={loading} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>Veicolo</Label>
+              <Select value={vehicle} onValueChange={(v) => setVehicle((v ?? "") as Vehicle)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Seleziona" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(VEHICLE_LABEL).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="mobile">Cellulare</Label>
+              <Input id="mobile" name="mobile" disabled={loading} />
+            </div>
+
+            {role === "LOGISTICS" && (
+              <div className="flex flex-col gap-1.5">
+                <Label>Attività</Label>
+                <Select value={businessId} onValueChange={(v) => setBusinessId(v ?? "")}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleziona attività" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businesses.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {role === "ADMIN" && businesses.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <Label>Attività (opzionale)</Label>
+                <div className="flex max-h-40 flex-col gap-2 overflow-y-auto rounded-lg border p-2">
+                  {businesses.map((b) => (
+                    <label key={b.id} className="flex items-center gap-2 text-sm">
+                      <Checkbox
+                        checked={assignToBusinessIds.includes(b.id)}
+                        onCheckedChange={(checked) => toggleAssign(b.id, checked === true)}
+                      />
+                      {b.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email">Email account</Label>
+              <Input id="email" name="email" type="email" required disabled={loading} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">Password iniziale</Label>
+              <Input id="password" name="password" type="password" minLength={6} required disabled={loading} />
+            </div>
+            <SheetFooter className="px-0">
+              <Button type="submit" disabled={loading}>
+                {loading ? "Creazione..." : "Crea raider"}
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? `Modifica ${editing.name} ${editing.surname}` : ""}</DialogTitle>
+          </DialogHeader>
+          {editing && (
+            <form id="edit-raider-form" onSubmit={saveEdit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="edit-name">Nome</Label>
+                <Input id="edit-name" name="name" defaultValue={editing.name} required disabled={loading} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="edit-surname">Cognome</Label>
+                <Input
+                  id="edit-surname"
+                  name="surname"
+                  defaultValue={editing.surname}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label>Veicolo</Label>
+                <Select value={editVehicle} onValueChange={(v) => setEditVehicle((v ?? "") as Vehicle)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(VEHICLE_LABEL).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="edit-mobile">Cellulare</Label>
+                <Input id="edit-mobile" name="mobile" disabled={loading} />
+              </div>
+              {role === "ADMIN" && (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="edit-email">Email account</Label>
+                  <Input id="edit-email" name="email" type="email" defaultValue={editing.email} disabled={loading} />
+                </div>
+              )}
+            </form>
+          )}
+          <DialogFooter>
+            <Button type="submit" form="edit-raider-form" disabled={loading}>
+              {loading ? "Salvataggio..." : "Salva"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
