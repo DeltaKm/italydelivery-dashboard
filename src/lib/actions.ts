@@ -19,7 +19,13 @@ import {
   type CreateBusinessInput,
   type UpdateBusinessInput,
 } from "@/lib/businesses";
-import { syncLogisticsBusinesses, updateLogistics, disableLogistics } from "@/lib/logistics";
+import {
+  syncLogisticsBusinesses,
+  updateLogistics,
+  disableLogistics,
+  createLogistics,
+  type CreateLogisticsInput,
+} from "@/lib/logistics";
 import {
   createRaider,
   approveRaiders,
@@ -125,6 +131,14 @@ export async function setBusinessStatusAction(
   return toActionResult(async () => {
     await setBusinessStatus(session.token, id, expired);
     revalidatePath("/dashboard/businesses");
+  });
+}
+
+export async function createLogisticsAction(input: CreateLogisticsInput): Promise<ActionResult> {
+  const session = await requireSession();
+  return toActionResult(async () => {
+    await createLogistics(session.token, input);
+    revalidatePath("/dashboard/logistics");
   });
 }
 
