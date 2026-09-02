@@ -39,6 +39,7 @@ export type CreateBusinessInput = {
   bussinesName: string;
   address: string;
   businessCord?: string;
+  imgUrl?: string;
 };
 
 export async function createBusiness(token: string, role: Role, input: CreateBusinessInput) {
@@ -52,6 +53,7 @@ export type UpdateBusinessInput = {
   bussinesName?: string;
   address?: string;
   businessCord?: string;
+  imgUrl?: string;
 };
 
 export async function updateBusiness(

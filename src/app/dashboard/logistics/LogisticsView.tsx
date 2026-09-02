@@ -69,6 +69,7 @@ export default function LogisticsView({
       surname: String(formData.get("surname")),
       email: String(formData.get("email")),
       password: String(formData.get("password")),
+      imgUrl: String(formData.get("imgUrl") || "") || undefined,
     });
     setLoading(false);
     if (result.ok) {
@@ -109,6 +110,7 @@ export default function LogisticsView({
     const result = await updateLogisticsAction(editingName.id, {
       name: String(formData.get("name")),
       surname: String(formData.get("surname")),
+      imgUrl: String(formData.get("imgUrl") || "") || undefined,
     });
     setLoading(false);
     if (result.ok) {
@@ -246,6 +248,10 @@ export default function LogisticsView({
               <Label htmlFor="password">Password iniziale</Label>
               <Input id="password" name="password" type="password" minLength={6} required disabled={loading} />
             </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="imgUrl">URL immagine (opzionale)</Label>
+              <Input id="imgUrl" name="imgUrl" type="url" placeholder="https://..." disabled={loading} />
+            </div>
             <SheetFooter className="px-0">
               <Button type="submit" disabled={loading}>
                 {loading ? "Creazione..." : "Crea Logistics"}
@@ -291,7 +297,7 @@ export default function LogisticsView({
       <Dialog open={!!editingName} onOpenChange={(v) => !v && setEditingName(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifica nome</DialogTitle>
+            <DialogTitle>Modifica account</DialogTitle>
           </DialogHeader>
           {editingName && (
             <form id="edit-name-form" onSubmit={saveName} className="flex flex-col gap-4">
@@ -306,6 +312,17 @@ export default function LogisticsView({
                   name="surname"
                   defaultValue={editingName.surname}
                   required
+                  disabled={loading}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="edit-imgUrl">URL immagine (opzionale)</Label>
+                <Input
+                  id="edit-imgUrl"
+                  name="imgUrl"
+                  type="url"
+                  placeholder="https://..."
+                  defaultValue={editingName.imgUrl ?? ""}
                   disabled={loading}
                 />
               </div>

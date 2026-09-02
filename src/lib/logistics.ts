@@ -20,6 +20,7 @@ export type CreateLogisticsInput = {
   password: string;
   name: string;
   surname: string;
+  imgUrl?: string;
 };
 
 export async function createLogistics(token: string, input: CreateLogisticsInput) {
@@ -45,7 +46,7 @@ export async function syncLogisticsBusinesses(
 export async function updateLogistics(
   token: string,
   id: string,
-  input: { name?: string; surname?: string }
+  input: { name?: string; surname?: string; imgUrl?: string }
 ) {
   return backendFetch(`/v2/admin/logistics/${id}`, { method: "PATCH", token, body: input });
 }

@@ -145,7 +145,7 @@ export async function createLogisticsAction(input: CreateLogisticsInput): Promis
 
 export async function updateLogisticsAction(
   id: string,
-  input: { name?: string; surname?: string }
+  input: { name?: string; surname?: string; imgUrl?: string }
 ): Promise<ActionResult> {
   const session = await requireSession();
   return toActionResult(async () => {

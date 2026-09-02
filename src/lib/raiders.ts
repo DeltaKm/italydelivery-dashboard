@@ -40,6 +40,7 @@ export type CreateRaiderInput = {
   assignToBusinessIds?: string[];
   // Solo LOGISTICS (obbligatorio)
   businessId?: string;
+  imgUrl?: string;
 };
 
 export async function createRaider(token: string, role: Role, input: CreateRaiderInput) {
@@ -64,6 +65,7 @@ export type UpdateRaiderInput = {
   vehicle?: Vehicle;
   mobile?: string;
   email?: string; // solo ADMIN
+  imgUrl?: string; // solo ADMIN
 };
 
 export async function updateRaider(

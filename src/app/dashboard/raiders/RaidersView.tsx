@@ -141,6 +141,7 @@ export default function RaidersView({
       assignToBusinessIds: role === "ADMIN" ? assignToBusinessIds : undefined,
       email: String(formData.get("email")),
       password: String(formData.get("password")),
+      imgUrl: role === "ADMIN" ? String(formData.get("imgUrl") || "") || undefined : undefined,
     });
     setLoading(false);
     if (result.ok) {
@@ -181,6 +182,7 @@ export default function RaidersView({
       vehicle: editVehicle || editing.vehicle,
       mobile: String(formData.get("mobile") || "") || undefined,
       email: role === "ADMIN" ? String(formData.get("email") || "") || undefined : undefined,
+      imgUrl: role === "ADMIN" ? String(formData.get("imgUrl") || "") || undefined : undefined,
     });
     setLoading(false);
     if (result.ok) {
@@ -463,6 +465,12 @@ export default function RaidersView({
               <Label htmlFor="password">Password iniziale</Label>
               <Input id="password" name="password" type="password" minLength={6} required disabled={loading} />
             </div>
+            {role === "ADMIN" && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="imgUrl">URL immagine (opzionale)</Label>
+                <Input id="imgUrl" name="imgUrl" type="url" placeholder="https://..." disabled={loading} />
+              </div>
+            )}
             <SheetFooter className="px-0">
               <Button type="submit" disabled={loading}>
                 {loading ? "Creazione..." : "Crea raider"}
@@ -549,6 +557,19 @@ export default function RaidersView({
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="edit-email">Email account</Label>
                   <Input id="edit-email" name="email" type="email" defaultValue={editing.email} disabled={loading} />
+                </div>
+              )}
+              {role === "ADMIN" && (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="edit-imgUrl">URL immagine (opzionale)</Label>
+                  <Input
+                    id="edit-imgUrl"
+                    name="imgUrl"
+                    type="url"
+                    placeholder="https://..."
+                    defaultValue={editing.imgUrl ?? ""}
+                    disabled={loading}
+                  />
                 </div>
               )}
             </form>

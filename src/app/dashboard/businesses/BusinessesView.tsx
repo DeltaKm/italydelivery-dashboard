@@ -62,6 +62,7 @@ export default function BusinessesView({
       businessCord: String(formData.get("businessCord") || "") || undefined,
       email: String(formData.get("email")),
       password: String(formData.get("password")),
+      imgUrl: role === "ADMIN" ? String(formData.get("imgUrl") || "") || undefined : undefined,
     });
     setLoading(false);
     if (result.ok) {
@@ -81,6 +82,7 @@ export default function BusinessesView({
       bussinesName: String(formData.get("bussinesName")),
       address: String(formData.get("address")),
       businessCord: String(formData.get("businessCord") || "") || undefined,
+      imgUrl: role === "ADMIN" ? String(formData.get("imgUrl") || "") || undefined : undefined,
     });
     setLoading(false);
     if (result.ok) {
@@ -307,6 +309,12 @@ export default function BusinessesView({
               <Label htmlFor="password">Password iniziale</Label>
               <Input id="password" name="password" type="password" minLength={6} required disabled={loading} />
             </div>
+            {role === "ADMIN" && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="imgUrl">URL immagine (opzionale)</Label>
+                <Input id="imgUrl" name="imgUrl" type="url" placeholder="https://..." disabled={loading} />
+              </div>
+            )}
             <SheetFooter className="px-0">
               <Button type="submit" disabled={loading}>
                 {loading ? "Creazione..." : "Crea attività"}
@@ -352,6 +360,19 @@ export default function BusinessesView({
                   disabled={loading}
                 />
               </div>
+              {role === "ADMIN" && (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="edit-imgUrl">URL immagine (opzionale)</Label>
+                  <Input
+                    id="edit-imgUrl"
+                    name="imgUrl"
+                    type="url"
+                    placeholder="https://..."
+                    defaultValue={editing.imgUrl ?? ""}
+                    disabled={loading}
+                  />
+                </div>
+              )}
               <SheetFooter className="px-0">
                 <Button type="submit" disabled={loading}>
                   {loading ? "Salvataggio..." : "Salva modifiche"}
