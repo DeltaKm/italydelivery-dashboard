@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { BackendError } from "@/lib/backend";
 import {
@@ -53,10 +54,16 @@ async function requireSession() {
 function toActionResult(fn: () => Promise<unknown>): Promise<ActionResult> {
   return fn()
     .then(() => ({ ok: true as const }))
-    .catch((error) => ({
-      ok: false as const,
-      message: error instanceof BackendError ? error.message : (error as Error).message,
-    }));
+    .catch((error) => {
+      // redirect()/notFound() lanciano un errore di controllo che deve
+      // propagarsi, non essere trattato come un fallimento dell'azione
+      // (es. sessione scaduta -> redirect al login dentro backendFetch).
+      unstable_rethrow(error);
+      return {
+        ok: false as const,
+        message: error instanceof BackendError ? error.message : (error as Error).message,
+      };
+    });
 }
 
 export async function createDeliveryAction(input: CreateDeliveryInput): Promise<ActionResult> {
