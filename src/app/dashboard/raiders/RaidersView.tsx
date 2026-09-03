@@ -54,6 +54,7 @@ import {
   removeRaiderAction,
   setRaiderActiveAction,
   syncRaiderBusinessesAction,
+  syncRaiderManagedBusinessesAction,
 } from "@/lib/actions";
 
 const VEHICLE_LABEL: Record<Vehicle, string> = {
@@ -106,7 +107,6 @@ export default function RaidersView({
 
   // Stato del form di creazione (i campi Select non sono nativi, servono controllati)
   const [vehicle, setVehicle] = useState<Vehicle | "">("");
-  const [businessId, setBusinessId] = useState("");
   const [assignToBusinessIds, setAssignToBusinessIds] = useState<string[]>([]);
   const [editVehicle, setEditVehicle] = useState<Vehicle | "">("");
 
@@ -126,8 +126,8 @@ export default function RaidersView({
       toast.error("Seleziona il veicolo");
       return;
     }
-    if (role === "LOGISTICS" && !businessId) {
-      toast.error("Seleziona un'attività");
+    if (role === "LOGISTICS" && assignToBusinessIds.length === 0) {
+      toast.error("Seleziona almeno un'attività");
       return;
     }
     const formData = new FormData(e.currentTarget);
@@ -137,7 +137,7 @@ export default function RaidersView({
       surname: String(formData.get("surname")),
       vehicle,
       mobile: String(formData.get("mobile") || "") || undefined,
-      businessId: role === "LOGISTICS" ? businessId : undefined,
+      businessIds: role === "LOGISTICS" ? assignToBusinessIds : undefined,
       assignToBusinessIds: role === "ADMIN" ? assignToBusinessIds : undefined,
       email: String(formData.get("email")),
       password: String(formData.get("password")),
@@ -148,7 +148,6 @@ export default function RaidersView({
       toast.success("Raider creato");
       setOpen(false);
       setVehicle("");
-      setBusinessId("");
       setAssignToBusinessIds([]);
     } else {
       toast.error(result.message);
@@ -231,7 +230,10 @@ export default function RaidersView({
   async function saveBusinesses() {
     if (!editingBusinesses) return;
     setLoading(true);
-    const result = await syncRaiderBusinessesAction(editingBusinesses.id, selectedBusinesses);
+    const result =
+      role === "LOGISTICS"
+        ? await syncRaiderManagedBusinessesAction(editingBusinesses.id, selectedBusinesses)
+        : await syncRaiderBusinessesAction(editingBusinesses.id, selectedBusinesses);
     setLoading(false);
     if (result.ok) {
       toast.success("Attività assegnate aggiornate");
@@ -356,7 +358,7 @@ export default function RaidersView({
               )}
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-1">
-                  {role === "ADMIN" && (
+                  {(role === "ADMIN" || role === "LOGISTICS") && (
                     <Button variant="outline" size="icon-sm" onClick={() => openBusinessEditor(r)}>
                       <Building2 className="size-3.5" />
                     </Button>
@@ -422,27 +424,9 @@ export default function RaidersView({
               <Input id="mobile" name="mobile" disabled={loading} />
             </div>
 
-            {role === "LOGISTICS" && (
+            {(role === "ADMIN" || role === "LOGISTICS") && businesses.length > 0 && (
               <div className="flex flex-col gap-1.5">
-                <Label>Attività</Label>
-                <Select value={businessId} onValueChange={(v) => setBusinessId(v ?? "")}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleziona attività" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businesses.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>
-                        {b.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {role === "ADMIN" && businesses.length > 0 && (
-              <div className="flex flex-col gap-1.5">
-                <Label>Attività (opzionale)</Label>
+                <Label>{role === "LOGISTICS" ? "Attività" : "Attività (opzionale)"}</Label>
                 <div className="flex max-h-40 flex-col gap-2 overflow-y-auto rounded-lg border p-2">
                   {businesses.map((b) => (
                     <label key={b.id} className="flex items-center gap-2 text-sm">

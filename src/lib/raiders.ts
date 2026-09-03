@@ -38,8 +38,8 @@ export type CreateRaiderInput = {
   mobile?: string;
   // Solo ADMIN (opzionale)
   assignToBusinessIds?: string[];
-  // Solo LOGISTICS (obbligatorio)
-  businessId?: string;
+  // Solo LOGISTICS (obbligatorio, tra i business che gestisce)
+  businessIds?: string[];
   imgUrl?: string;
 };
 
@@ -89,6 +89,21 @@ export async function syncRaiderBusinesses(token: string, raiderId: string, busi
     method: "PATCH",
     token,
     body: { raiderId, businessIds },
+  });
+}
+
+// Solo LOGISTICS: sincronizza le attività (tra quelle gestite) a cui è collegato
+// un raider. Non è un replace totale: tocca solo le relazioni verso i business
+// di questa logistica, senza toccare eventuali collegamenti ad altre attività.
+export async function syncRaiderManagedBusinesses(
+  token: string,
+  raiderId: string,
+  businessIds: string[]
+) {
+  return backendFetch(`/v2/logistics/raiders/${raiderId}/businesses`, {
+    method: "PATCH",
+    token,
+    body: { businessIds },
   });
 }
 
