@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
+import PasswordInput from "@/components/PasswordInput";
 import {
   Table,
   TableHeader,
@@ -246,7 +247,7 @@ export default function LogisticsView({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Password iniziale</Label>
-              <Input id="password" name="password" type="password" minLength={6} required disabled={loading} />
+              <PasswordInput id="password" name="password" minLength={6} required disabled={loading} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="imgUrl">URL immagine (opzionale)</Label>

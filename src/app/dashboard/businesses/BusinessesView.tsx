@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
+import PasswordInput from "@/components/PasswordInput";
 import type { Business } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
 import {
@@ -307,7 +308,7 @@ export default function BusinessesView({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Password iniziale</Label>
-              <Input id="password" name="password" type="password" minLength={6} required disabled={loading} />
+              <PasswordInput id="password" name="password" minLength={6} required disabled={loading} />
             </div>
             {role === "ADMIN" && (
               <div className="flex flex-col gap-1.5">
