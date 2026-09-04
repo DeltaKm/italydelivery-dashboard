@@ -21,7 +21,7 @@ export default function StatsFilters({
   businesses,
   raiders,
 }: {
-  logistics?: { id: string; name: string; surname: string }[];
+  logistics?: { id: string; name: string; surname: string; assignedBusinesses: { id: string; name: string }[] }[];
   businesses?: { id: string; name: string }[];
   raiders?: { id: string; name: string; surname: string }[];
 }) {
@@ -37,12 +37,18 @@ export default function StatsFilters({
   const range: DateRange | undefined =
     dateFrom && dateTo ? { from: new Date(dateFrom), to: new Date(dateTo) } : undefined;
 
+  const selectedLogistics = logisticsId ? logistics?.find((l) => l.id === logisticsId) : undefined;
+  // Quando è selezionata una logistica, l'attività è scelta solo tra quelle
+  // che gestisce — altrimenti si potrebbe comporre una combinazione
+  // logistica/attività inesistente e far fallire la richiesta.
+  const visibleBusinesses = selectedLogistics ? selectedLogistics.assignedBusinesses : businesses;
+
   // Base UI's <Select.Value> shows the raw value instead of the item's label
   // unless the Root is given an items map to resolve it from.
   const logisticsItems = Object.fromEntries(
     (logistics ?? []).map((l) => [l.id, `${l.name} ${l.surname}`])
   );
-  const businessItems = Object.fromEntries((businesses ?? []).map((b) => [b.id, b.name]));
+  const businessItems = Object.fromEntries((visibleBusinesses ?? []).map((b) => [b.id, b.name]));
   const raiderItems = Object.fromEntries(
     (raiders ?? []).map((r) => [r.id, `${r.name} ${r.surname}`])
   );
@@ -54,6 +60,19 @@ export default function StatsFilters({
       else params.delete(key);
     }
     router.push(`/dashboard/stats?${params.toString()}`);
+  }
+
+  function onLogisticsChange(value: string | null) {
+    const newLogisticsId = value || undefined;
+    const allowedBusinessIds = newLogisticsId
+      ? logistics?.find((l) => l.id === newLogisticsId)?.assignedBusinesses.map((b) => b.id) ?? []
+      : null;
+    const businessNoLongerValid =
+      allowedBusinessIds !== null && !!businessId && !allowedBusinessIds.includes(businessId);
+    updateParams({
+      logisticsId: newLogisticsId,
+      businessId: businessNoLongerValid ? undefined : businessId || undefined,
+    });
   }
 
   return (
@@ -93,11 +112,7 @@ export default function StatsFilters({
       )}
 
       {logistics && logistics.length > 0 && (
-        <Select
-          items={logisticsItems}
-          value={logisticsId}
-          onValueChange={(value) => updateParams({ logisticsId: value || undefined })}
-        >
+        <Select items={logisticsItems} value={logisticsId} onValueChange={onLogisticsChange}>
           <SelectTrigger className="w-52">
             <SelectValue placeholder="Filtra per logistica" />
           </SelectTrigger>
@@ -121,7 +136,7 @@ export default function StatsFilters({
         </Button>
       )}
 
-      {businesses && businesses.length > 0 && (
+      {visibleBusinesses && visibleBusinesses.length > 0 && (
         <Select
           items={businessItems}
           value={businessId}
@@ -131,7 +146,7 @@ export default function StatsFilters({
             <SelectValue placeholder="Filtra per attività" />
           </SelectTrigger>
           <SelectContent>
-            {businesses.map((b) => (
+            {visibleBusinesses.map((b) => (
               <SelectItem key={b.id} value={b.id}>
                 {b.name}
               </SelectItem>

@@ -4,6 +4,8 @@ import { getStats } from "@/lib/stats";
 import { listBusinesses } from "@/lib/businesses";
 import { listRaiders } from "@/lib/raiders";
 import { listLogisticsAccounts } from "@/lib/logistics";
+import { BackendError } from "@/lib/backend";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import PageHeader from "@/components/PageHeader";
 import StatsView from "../StatsView";
 import StatsFilters from "./StatsFilters";
@@ -47,10 +49,30 @@ export default async function StatsPage(props: PageProps<"/dashboard/stats">) {
     return null;
   }
 
-  const [stats, filterOptions] = await Promise.all([
-    getStats(session.token, session.role, { dateFrom, dateTo, logisticsId, businessId, raiderId }),
-    loadFilterOptions(),
-  ]);
+  const filterOptionsPromise = loadFilterOptions();
+
+  let stats: Awaited<ReturnType<typeof getStats>> | null = null;
+  let statsError: string | null = null;
+  try {
+    stats = await getStats(session.token, session.role, {
+      dateFrom,
+      dateTo,
+      logisticsId,
+      businessId,
+      raiderId,
+    });
+  } catch (error) {
+    // Una combinazione di filtri incompatibile (es. attività non gestita
+    // dalla logistica selezionata) torna un 400: lo mostriamo come
+    // messaggio pulito invece di far esplodere la pagina.
+    if (error instanceof BackendError && error.status === 400) {
+      statsError = error.message;
+    } else {
+      throw error;
+    }
+  }
+
+  const filterOptions = await filterOptionsPromise;
 
   return (
     <div>
@@ -60,10 +82,19 @@ export default async function StatsPage(props: PageProps<"/dashboard/stats">) {
         businesses={filterOptions?.businesses}
         raiders={filterOptions?.raiders}
       />
-      <div className="mb-6">
-        <StatsCharts role={session.role} stats={stats} />
-      </div>
-      <StatsView role={session.role} stats={stats} />
+      {statsError ? (
+        <Alert variant="destructive">
+          <AlertTitle>Combinazione di filtri non valida</AlertTitle>
+          <AlertDescription>{statsError}</AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          <div className="mb-6">
+            <StatsCharts role={session.role} stats={stats!} />
+          </div>
+          <StatsView role={session.role} stats={stats!} />
+        </>
+      )}
     </div>
   );
 }
