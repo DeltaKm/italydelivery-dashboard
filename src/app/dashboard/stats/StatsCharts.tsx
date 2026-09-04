@@ -1,11 +1,17 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import type { AdminStats, LogisticsStats, BusinessStats } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
-import { brand } from "@/theme/italydelivery";
 
 // Stessa semantica di StatusBadge.tsx (success/processing/warning/error/default)
 const STATUS_COLORS: Record<string, string> = {
@@ -17,9 +23,56 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "#94a3b8",
 };
 
+// Palette per grafici a torta (classifiche con molte voci diverse)
+const PIE_PALETTE = [
+  "#263573",
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
+  "#14b8a6",
+  "#f97316",
+  "#6366f1",
+];
+
 const CHART_CONFIG = {
   value: { label: "Valore" },
 } satisfies ChartConfig;
+
+function ColoredPieChart({
+  title,
+  data,
+}: {
+  title: string;
+  data: { label: string; value: number; color: string }[];
+}) {
+  const config = Object.fromEntries(
+    data.map((d) => [d.label, { label: d.label, color: d.color }])
+  ) satisfies ChartConfig;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={config} className="mx-auto aspect-square max-h-72">
+          <PieChart>
+            <ChartTooltip content={<ChartTooltipContent hideLabel nameKey="label" />} />
+            <Pie data={data} dataKey="value" nameKey="label" outerRadius={90}>
+              {data.map((entry, index) => (
+                <Cell key={index} fill={entry.color} />
+              ))}
+            </Pie>
+            <ChartLegend content={<ChartLegendContent nameKey="label" />} />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
 
 function ColoredBarChart({
   title,
@@ -97,16 +150,16 @@ function financialChartData(financial: {
 function AdminCharts({ stats }: { stats: AdminStats }) {
   const statusData = statusChartData(stats.deliveries.byStatus);
 
-  const topBusinessesData = stats.topBusinesses.slice(0, 10).map((b) => ({
+  const topBusinessesData = stats.topBusinesses.slice(0, 10).map((b, i) => ({
     label: truncate(b.name),
     value: b.totalOrders,
-    color: brand.primary,
+    color: PIE_PALETTE[i % PIE_PALETTE.length],
   }));
 
-  const topRaidersData = stats.topRaiders.slice(0, 10).map((r) => ({
+  const topRaidersData = stats.topRaiders.slice(0, 10).map((r, i) => ({
     label: truncate(r.name),
     value: r.completedDeliveries,
-    color: brand.primary,
+    color: PIE_PALETTE[i % PIE_PALETTE.length],
   }));
 
   const financialData = financialChartData(stats.financial);
@@ -115,8 +168,8 @@ function AdminCharts({ stats }: { stats: AdminStats }) {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <ColoredBarChart title="Consegne per stato" data={statusData} />
       <ColoredBarChart title="Riepilogo finanziario" data={financialData} />
-      <ColoredBarChart title="Top attività per ordini" data={topBusinessesData} />
-      <ColoredBarChart title="Top raider per consegne completate" data={topRaidersData} />
+      <ColoredPieChart title="Top attività per ordini" data={topBusinessesData} />
+      <ColoredPieChart title="Top raider per consegne completate" data={topRaidersData} />
     </div>
   );
 }
@@ -124,19 +177,19 @@ function AdminCharts({ stats }: { stats: AdminStats }) {
 function LogisticsCharts({ stats }: { stats: LogisticsStats }) {
   const statusData = statusChartData(stats.deliveries.byStatus);
 
-  const businessesData = stats.businesses.slice(0, 10).map((b) => ({
+  const businessesData = stats.businesses.slice(0, 10).map((b, i) => ({
     label: truncate(b.name),
     value: b.totalOrders,
-    color: brand.primary,
+    color: PIE_PALETTE[i % PIE_PALETTE.length],
   }));
 
   const raidersData = [...stats.raiders]
     .sort((a, b) => b.completed - a.completed)
     .slice(0, 10)
-    .map((r) => ({
+    .map((r, i) => ({
       label: truncate(r.raiderName),
       value: r.completed,
-      color: brand.primary,
+      color: PIE_PALETTE[i % PIE_PALETTE.length],
     }));
 
   const financialData = financialChartData(stats.financial);
@@ -145,8 +198,8 @@ function LogisticsCharts({ stats }: { stats: LogisticsStats }) {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <ColoredBarChart title="Consegne per stato" data={statusData} />
       <ColoredBarChart title="Riepilogo finanziario" data={financialData} />
-      <ColoredBarChart title="Attività gestite per ordini" data={businessesData} />
-      <ColoredBarChart title="Top raider per consegne completate" data={raidersData} />
+      <ColoredPieChart title="Attività gestite per ordini" data={businessesData} />
+      <ColoredPieChart title="Top raider per consegne completate" data={raidersData} />
     </div>
   );
 }
@@ -158,10 +211,10 @@ function BusinessCharts({ stats }: { stats: BusinessStats }) {
   const raidersData = [...stats.raiders.performance]
     .sort((a, b) => b.completed - a.completed)
     .slice(0, 10)
-    .map((r) => ({
+    .map((r, i) => ({
       label: truncate(r.raiderName),
       value: r.completed,
-      color: brand.primary,
+      color: PIE_PALETTE[i % PIE_PALETTE.length],
     }));
 
   return (
@@ -169,7 +222,7 @@ function BusinessCharts({ stats }: { stats: BusinessStats }) {
       <ColoredBarChart title="Ordini per stato" data={statusData} />
       <ColoredBarChart title="Riepilogo finanziario" data={financialData} />
       {raidersData.length > 0 && (
-        <ColoredBarChart title="Top raider per consegne completate" data={raidersData} />
+        <ColoredPieChart title="Top raider per consegne completate" data={raidersData} />
       )}
     </div>
   );
