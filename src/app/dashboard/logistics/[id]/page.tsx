@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { getLogistics } from "@/lib/logistics";
 import { BackendError } from "@/lib/backend";
 import PageHeader from "@/components/PageHeader";
+import EntityAvatar from "@/components/EntityAvatar";
 import LogisticsDetailView from "./LogisticsDetailView";
 
 export default async function LogisticsDetailPage(props: PageProps<"/dashboard/logistics/[id]">) {
@@ -23,7 +24,16 @@ export default async function LogisticsDetailPage(props: PageProps<"/dashboard/l
 
   return (
     <div>
-      <PageHeader title={`${logistics.name} ${logistics.surname}`} />
+      <PageHeader
+        title={`${logistics.name} ${logistics.surname}`}
+        avatar={
+          <EntityAvatar
+            name={`${logistics.name} ${logistics.surname}`}
+            imgUrl={logistics.user?.imgUrl}
+            size="lg"
+          />
+        }
+      />
       <LogisticsDetailView logistics={logistics} />
     </div>
   );

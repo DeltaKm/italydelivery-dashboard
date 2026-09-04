@@ -46,6 +46,7 @@ import {
 import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
 import PasswordInput from "@/components/PasswordInput";
+import EntityAvatar from "@/components/EntityAvatar";
 import type { RaiderListItem, Business, Vehicle } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
 import {
@@ -328,7 +329,12 @@ export default function RaidersView({
               className={role === "ADMIN" ? "cursor-pointer" : undefined}
               onClick={role === "ADMIN" ? () => router.push(`/dashboard/raiders/${r.id}`) : undefined}
             >
-              <TableCell className="font-medium">{r.name} {r.surname}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <EntityAvatar name={`${r.name} ${r.surname}`} imgUrl={r.imgUrl} size="sm" />
+                  {r.name} {r.surname}
+                </div>
+              </TableCell>
               <TableCell>{r.email}</TableCell>
               <TableCell>{VEHICLE_LABEL[r.vehicle] ?? r.vehicle}</TableCell>
               <TableCell onClick={(e) => e.stopPropagation()}>

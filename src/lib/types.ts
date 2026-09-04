@@ -141,7 +141,7 @@ export type BusinessDetail = {
   businessCord: string | null;
   raiderActived: string[];
   createdAt: string;
-  user?: { email: string; confirmed: boolean; expired: boolean } | null;
+  user?: { email: string; confirmed: boolean; expired: boolean; imgUrl?: string } | null;
   raiderRelations: {
     confirmedFromBusiness: boolean;
     raider: {
@@ -168,7 +168,7 @@ export type RaiderDetail = {
   isActive: boolean;
   inService?: boolean;
   createdAt: string;
-  user?: { email: string; confirmed: boolean; expired: boolean } | null;
+  user?: { email: string; confirmed: boolean; expired: boolean; imgUrl?: string } | null;
   businessRelations: {
     business: { id: string; bussinesName: string; address: string };
   }[];
@@ -189,7 +189,7 @@ export type LogisticsDetail = {
   name: string;
   surname: string;
   createdAt: string;
-  user?: { email: string; confirmed: boolean; expired: boolean } | null;
+  user?: { email: string; confirmed: boolean; expired: boolean; imgUrl?: string } | null;
   businessRelations: {
     business: {
       id: string;

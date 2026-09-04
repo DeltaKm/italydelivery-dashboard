@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
 import PasswordInput from "@/components/PasswordInput";
+import EntityAvatar from "@/components/EntityAvatar";
 import {
   Table,
   TableHeader,
@@ -171,7 +172,12 @@ export default function LogisticsView({
               className="cursor-pointer"
               onClick={() => router.push(`/dashboard/logistics/${r.id}`)}
             >
-              <TableCell className="font-medium">{r.name} {r.surname}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <EntityAvatar name={`${r.name} ${r.surname}`} imgUrl={r.imgUrl} size="sm" />
+                  {r.name} {r.surname}
+                </div>
+              </TableCell>
               <TableCell>{r.email}</TableCell>
               <TableCell>
                 <BadgeListOverflow

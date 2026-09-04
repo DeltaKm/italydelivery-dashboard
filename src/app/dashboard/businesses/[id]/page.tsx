@@ -5,6 +5,7 @@ import { listRaiders } from "@/lib/raiders";
 import { listLogisticsAccounts } from "@/lib/logistics";
 import { BackendError } from "@/lib/backend";
 import PageHeader from "@/components/PageHeader";
+import EntityAvatar from "@/components/EntityAvatar";
 import BusinessDetailView from "./BusinessDetailView";
 
 export default async function BusinessDetailPage(
@@ -38,7 +39,12 @@ export default async function BusinessDetailPage(
 
   return (
     <div>
-      <PageHeader title={business.bussinesName} />
+      <PageHeader
+        title={business.bussinesName}
+        avatar={
+          <EntityAvatar name={business.bussinesName} imgUrl={business.user?.imgUrl} size="lg" />
+        }
+      />
       <BusinessDetailView
         business={business}
         role={session.role}

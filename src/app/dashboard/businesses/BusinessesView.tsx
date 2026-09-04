@@ -30,6 +30,7 @@ import {
 import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
 import PasswordInput from "@/components/PasswordInput";
+import EntityAvatar from "@/components/EntityAvatar";
 import type { Business } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
 import {
@@ -168,7 +169,12 @@ export default function BusinessesView({
               className="cursor-pointer"
               onClick={() => router.push(`/dashboard/businesses/${business.id}`)}
             >
-              <TableCell className="font-medium">{business.name}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <EntityAvatar name={business.name} imgUrl={business.imgUrl} size="sm" />
+                  {business.name}
+                </div>
+              </TableCell>
               <TableCell className="max-w-48 truncate">{business.address}</TableCell>
               <TableCell>{business.email}</TableCell>
               <TableCell className="text-center">{business.activeRaiders}</TableCell>

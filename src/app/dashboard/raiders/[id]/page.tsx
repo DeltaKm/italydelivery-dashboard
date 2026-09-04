@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { getRaider } from "@/lib/raiders";
 import { BackendError } from "@/lib/backend";
 import PageHeader from "@/components/PageHeader";
+import EntityAvatar from "@/components/EntityAvatar";
 import RaiderDetailView from "./RaiderDetailView";
 
 export default async function RaiderDetailPage(props: PageProps<"/dashboard/raiders/[id]">) {
@@ -23,7 +24,16 @@ export default async function RaiderDetailPage(props: PageProps<"/dashboard/raid
 
   return (
     <div>
-      <PageHeader title={`${raider.name} ${raider.surname}`} />
+      <PageHeader
+        title={`${raider.name} ${raider.surname}`}
+        avatar={
+          <EntityAvatar
+            name={`${raider.name} ${raider.surname}`}
+            imgUrl={raider.user?.imgUrl}
+            size="lg"
+          />
+        }
+      />
       <RaiderDetailView raider={raider} />
     </div>
   );
