@@ -86,13 +86,26 @@ function LogisticsCharts({ stats }: { stats: LogisticsStats }) {
     { label: "Altro", count: other },
   ];
 
+  const businessesData = stats.businesses.slice(0, 10).map((b) => ({
+    label: b.name.length > 14 ? `${b.name.slice(0, 14)}…` : b.name,
+    orders: b.totalOrders,
+  }));
+
   return (
-    <StatusBarChart
-      title="Consegne per stato"
-      data={statusData}
-      config={STATUS_CHART_CONFIG}
-      dataKey="count"
-    />
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <StatusBarChart
+        title="Consegne per stato"
+        data={statusData}
+        config={STATUS_CHART_CONFIG}
+        dataKey="count"
+      />
+      <StatusBarChart
+        title="Attività gestite per ordini"
+        data={businessesData}
+        config={ORDERS_CHART_CONFIG}
+        dataKey="orders"
+      />
+    </div>
   );
 }
 

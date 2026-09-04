@@ -268,6 +268,22 @@ export type LogisticsStats = {
     ongoingDeliveries: number;
   };
   financial: Financial;
+  businesses: {
+    id: string;
+    name: string;
+    totalOrders: number;
+    completedOrders: number;
+    totalCompensation: number;
+  }[];
+  raiders: {
+    raiderId: string;
+    raiderName: string;
+    totalAssigned: number;
+    completed: number;
+    notDelivered: number;
+    compensation: string;
+    successRate: string;
+  }[];
 };
 
 export type BusinessStats = {
@@ -291,6 +307,7 @@ export type BusinessStats = {
       totalAssigned: number;
       completed: number;
       notDelivered: number;
+      compensation: string;
       successRate: string;
     }[];
   };
