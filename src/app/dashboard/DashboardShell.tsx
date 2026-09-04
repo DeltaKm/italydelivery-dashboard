@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ThemeToggle from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/session-constants";
 
@@ -176,6 +177,7 @@ export default function DashboardShell({
           </Button>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {role === "BUSINESS" || role === "LOGISTICS" ? (
               <Link href="/dashboard/profile">
                 <Button variant="ghost" size="sm" className="gap-1.5">
