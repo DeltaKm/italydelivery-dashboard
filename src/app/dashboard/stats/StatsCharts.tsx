@@ -116,7 +116,12 @@ function ColoredBarChart({
           <BarChart data={data}>
             <CartesianGrid vertical={false} />
             <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-            <YAxis tickLine={false} axisLine={false} width={32} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              width={64}
+              tickFormatter={(v: number) => v.toLocaleString("it-IT")}
+            />
             <ChartTooltip
               content={
                 <ChartTooltipContent
