@@ -257,7 +257,15 @@ export type AdminStats = {
     completedOrders: number;
     totalCompensation: number;
   }[];
-  topRaiders: { id: string; name: string; completedDeliveries: number }[];
+  topRaiders: {
+    id: string;
+    name: string;
+    completedDeliveries: number;
+    totalAssigned: number;
+    notDelivered: number;
+    compensation: string;
+    successRate: string;
+  }[];
 };
 
 export type LogisticsStats = {

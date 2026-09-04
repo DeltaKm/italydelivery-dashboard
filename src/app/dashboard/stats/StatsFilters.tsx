@@ -17,9 +17,11 @@ import {
 import type { DateRange } from "react-day-picker";
 
 export default function StatsFilters({
+  logistics,
   businesses,
   raiders,
 }: {
+  logistics?: { id: string; name: string; surname: string }[];
   businesses?: { id: string; name: string }[];
   raiders?: { id: string; name: string; surname: string }[];
 }) {
@@ -28,11 +30,22 @@ export default function StatsFilters({
 
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
+  const logisticsId = searchParams.get("logisticsId") ?? "";
   const businessId = searchParams.get("businessId") ?? "";
   const raiderId = searchParams.get("raiderId") ?? "";
 
   const range: DateRange | undefined =
     dateFrom && dateTo ? { from: new Date(dateFrom), to: new Date(dateTo) } : undefined;
+
+  // Base UI's <Select.Value> shows the raw value instead of the item's label
+  // unless the Root is given an items map to resolve it from.
+  const logisticsItems = Object.fromEntries(
+    (logistics ?? []).map((l) => [l.id, `${l.name} ${l.surname}`])
+  );
+  const businessItems = Object.fromEntries((businesses ?? []).map((b) => [b.id, b.name]));
+  const raiderItems = Object.fromEntries(
+    (raiders ?? []).map((r) => [r.id, `${r.name} ${r.surname}`])
+  );
 
   function updateParams(next: Record<string, string | undefined>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -79,8 +92,38 @@ export default function StatsFilters({
         </Button>
       )}
 
+      {logistics && logistics.length > 0 && (
+        <Select
+          items={logisticsItems}
+          value={logisticsId}
+          onValueChange={(value) => updateParams({ logisticsId: value || undefined })}
+        >
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Filtra per logistica" />
+          </SelectTrigger>
+          <SelectContent>
+            {logistics.map((l) => (
+              <SelectItem key={l.id} value={l.id}>
+                {l.name} {l.surname}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {logisticsId && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => updateParams({ logisticsId: undefined })}
+          aria-label="Rimuovi filtro logistica"
+        >
+          <X className="size-3.5" />
+        </Button>
+      )}
+
       {businesses && businesses.length > 0 && (
         <Select
+          items={businessItems}
           value={businessId}
           onValueChange={(value) => updateParams({ businessId: value || undefined })}
         >
@@ -109,6 +152,7 @@ export default function StatsFilters({
 
       {raiders && raiders.length > 0 && (
         <Select
+          items={raiderItems}
           value={raiderId}
           onValueChange={(value) => updateParams({ raiderId: value || undefined })}
         >

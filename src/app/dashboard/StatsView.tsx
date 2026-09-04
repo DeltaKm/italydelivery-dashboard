@@ -111,14 +111,22 @@ function AdminView({ stats }: { stats: AdminStats }) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Raider</TableHead>
-                  <TableHead className="text-right">Consegne completate</TableHead>
+                  <TableHead className="text-right">Assegnate</TableHead>
+                  <TableHead className="text-right">Completate</TableHead>
+                  <TableHead className="text-right">Non consegnate</TableHead>
+                  <TableHead className="text-right">% successo</TableHead>
+                  <TableHead className="text-right">Da pagare</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {stats.topRaiders.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell>{r.name}</TableCell>
+                    <TableCell className="text-right">{r.totalAssigned}</TableCell>
                     <TableCell className="text-right">{r.completedDeliveries}</TableCell>
+                    <TableCell className="text-right">{r.notDelivered}</TableCell>
+                    <TableCell className="text-right">{r.successRate}</TableCell>
+                    <TableCell className="text-right">€ {r.compensation}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
