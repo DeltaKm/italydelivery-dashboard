@@ -58,7 +58,23 @@ function ColoredPieChart({
       <CardContent>
         <ChartContainer config={config} className="mx-auto aspect-square max-h-56">
           <PieChart>
-            <ChartTooltip content={<ChartTooltipContent hideLabel nameKey="label" />} />
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  hideIndicator
+                  nameKey="label"
+                  formatter={(value, name) => (
+                    <div className="flex w-full min-w-40 items-center justify-between gap-3">
+                      <span className="text-muted-foreground">{name}</span>
+                      <span className="font-mono font-medium tabular-nums text-foreground">
+                        {typeof value === "number" ? value.toLocaleString() : String(value)}
+                      </span>
+                    </div>
+                  )}
+                />
+              }
+            />
             <Pie data={data} dataKey="value" nameKey="label" outerRadius={80}>
               {data.map((entry, index) => (
                 <Cell key={index} fill={entry.color} />
@@ -101,7 +117,18 @@ function ColoredBarChart({
             <CartesianGrid vertical={false} />
             <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
             <YAxis tickLine={false} axisLine={false} width={32} />
-            <ChartTooltip content={<ChartTooltipContent hideLabel={false} />} />
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  hideIndicator
+                  formatter={(value) => (
+                    <span className="font-mono font-medium tabular-nums text-foreground">
+                      {typeof value === "number" ? value.toLocaleString() : String(value)}
+                    </span>
+                  )}
+                />
+              }
+            />
             <Bar dataKey="value" radius={4}>
               {data.map((entry, index) => (
                 <Cell key={index} fill={entry.color} />
