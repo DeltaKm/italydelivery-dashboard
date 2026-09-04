@@ -19,10 +19,15 @@ function statsPathForRole(role: Role): string {
 export async function getStats(
   token: string,
   role: Role,
-  params: { dateFrom?: string; dateTo?: string } = {}
+  params: { dateFrom?: string; dateTo?: string; businessId?: string; raiderId?: string } = {}
 ): Promise<AdminStats | LogisticsStats | BusinessStats> {
   return backendFetch(statsPathForRole(role), {
     token,
-    searchParams: { dateFrom: params.dateFrom, dateTo: params.dateTo },
+    searchParams: {
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+      businessId: params.businessId,
+      raiderId: params.raiderId,
+    },
   });
 }
