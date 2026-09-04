@@ -4,6 +4,7 @@ import { getStats } from "@/lib/stats";
 import PageHeader from "@/components/PageHeader";
 import StatsView from "../StatsView";
 import StatsFilters from "./StatsFilters";
+import StatsCharts from "./StatsCharts";
 
 export default async function StatsPage(props: PageProps<"/dashboard/stats">) {
   const session = await getSession();
@@ -19,6 +20,9 @@ export default async function StatsPage(props: PageProps<"/dashboard/stats">) {
     <div>
       <PageHeader title="Statistiche" />
       <StatsFilters />
+      <div className="mb-6">
+        <StatsCharts role={session.role} stats={stats} />
+      </div>
       <StatsView role={session.role} stats={stats} />
     </div>
   );
