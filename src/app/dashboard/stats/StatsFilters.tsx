@@ -25,7 +25,7 @@ export default function StatsFilters() {
       if (value) params.set(key, value);
       else params.delete(key);
     }
-    router.push(`/dashboard?${params.toString()}`);
+    router.push(`/dashboard/stats?${params.toString()}`);
   }
 
   return (

@@ -3,22 +3,16 @@ import { getSession } from "@/lib/session";
 import { getStats } from "@/lib/stats";
 import PageHeader from "@/components/PageHeader";
 import StatsView from "./StatsView";
-import StatsFilters from "./StatsFilters";
 
-export default async function DashboardHomePage(props: PageProps<"/dashboard">) {
+export default async function DashboardHomePage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const searchParams = await props.searchParams;
-  const dateFrom = typeof searchParams.dateFrom === "string" ? searchParams.dateFrom : undefined;
-  const dateTo = typeof searchParams.dateTo === "string" ? searchParams.dateTo : undefined;
-
-  const stats = await getStats(session.token, session.role, { dateFrom, dateTo });
+  const stats = await getStats(session.token, session.role);
 
   return (
     <div>
       <PageHeader title="Panoramica" />
-      <StatsFilters />
       <StatsView role={session.role} stats={stats} />
     </div>
   );
