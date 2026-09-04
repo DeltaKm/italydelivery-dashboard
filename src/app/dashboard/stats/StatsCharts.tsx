@@ -6,8 +6,6 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
 import type { AdminStats, LogisticsStats, BusinessStats } from "@/lib/types";
@@ -58,17 +56,28 @@ function ColoredPieChart({
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={config} className="mx-auto aspect-square max-h-72">
+        <ChartContainer config={config} className="mx-auto aspect-square max-h-56">
           <PieChart>
             <ChartTooltip content={<ChartTooltipContent hideLabel nameKey="label" />} />
-            <Pie data={data} dataKey="value" nameKey="label" outerRadius={90}>
+            <Pie data={data} dataKey="value" nameKey="label" outerRadius={80}>
               {data.map((entry, index) => (
                 <Cell key={index} fill={entry.color} />
               ))}
             </Pie>
-            <ChartLegend content={<ChartLegendContent nameKey="label" />} />
           </PieChart>
         </ChartContainer>
+        <div className="mt-4 flex flex-col divide-y divide-border border-t border-border">
+          {data.map((entry, index) => (
+            <div key={index} className="flex items-center gap-2 py-1.5 text-sm">
+              <span
+                className="size-2.5 shrink-0 rounded-[2px]"
+                style={{ backgroundColor: entry.color }}
+              />
+              <span className="flex-1 truncate">{entry.label}</span>
+              <span className="shrink-0 tabular-nums text-muted-foreground">{entry.value}</span>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
@@ -103,10 +112,6 @@ function ColoredBarChart({
       </CardContent>
     </Card>
   );
-}
-
-function truncate(name: string) {
-  return name.length > 14 ? `${name.slice(0, 14)}…` : name;
 }
 
 function statusChartData(byStatus: {
@@ -151,13 +156,13 @@ function AdminCharts({ stats }: { stats: AdminStats }) {
   const statusData = statusChartData(stats.deliveries.byStatus);
 
   const topBusinessesData = stats.topBusinesses.slice(0, 10).map((b, i) => ({
-    label: truncate(b.name),
+    label: b.name,
     value: b.totalOrders,
     color: PIE_PALETTE[i % PIE_PALETTE.length],
   }));
 
   const topRaidersData = stats.topRaiders.slice(0, 10).map((r, i) => ({
-    label: truncate(r.name),
+    label: r.name,
     value: r.completedDeliveries,
     color: PIE_PALETTE[i % PIE_PALETTE.length],
   }));
@@ -178,7 +183,7 @@ function LogisticsCharts({ stats }: { stats: LogisticsStats }) {
   const statusData = statusChartData(stats.deliveries.byStatus);
 
   const businessesData = stats.businesses.slice(0, 10).map((b, i) => ({
-    label: truncate(b.name),
+    label: b.name,
     value: b.totalOrders,
     color: PIE_PALETTE[i % PIE_PALETTE.length],
   }));
@@ -187,7 +192,7 @@ function LogisticsCharts({ stats }: { stats: LogisticsStats }) {
     .sort((a, b) => b.completed - a.completed)
     .slice(0, 10)
     .map((r, i) => ({
-      label: truncate(r.raiderName),
+      label: r.raiderName,
       value: r.completed,
       color: PIE_PALETTE[i % PIE_PALETTE.length],
     }));
@@ -212,7 +217,7 @@ function BusinessCharts({ stats }: { stats: BusinessStats }) {
     .sort((a, b) => b.completed - a.completed)
     .slice(0, 10)
     .map((r, i) => ({
-      label: truncate(r.raiderName),
+      label: r.raiderName,
       value: r.completed,
       color: PIE_PALETTE[i % PIE_PALETTE.length],
     }));
