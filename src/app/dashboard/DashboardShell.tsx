@@ -36,17 +36,17 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["ADMIN", "LOGISTICS", "BUSINESS"],
   },
   {
-    key: "deliveries",
-    href: "/dashboard/deliveries",
-    label: "Consegne",
-    icon: Truck,
-    roles: ["ADMIN", "LOGISTICS", "BUSINESS"],
-  },
-  {
     key: "stats",
     href: "/dashboard/stats",
     label: "Statistiche",
     icon: BarChart3,
+    roles: ["ADMIN", "LOGISTICS", "BUSINESS"],
+  },
+  {
+    key: "deliveries",
+    href: "/dashboard/deliveries",
+    label: "Consegne",
+    icon: Truck,
     roles: ["ADMIN", "LOGISTICS", "BUSINESS"],
   },
   {
