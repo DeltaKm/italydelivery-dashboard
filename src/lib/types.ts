@@ -263,9 +263,21 @@ export type AdminStats = {
 export type LogisticsStats = {
   overview: {
     totalBusinesses: number;
+    totalRaiders: number;
+    activeRaiders: number;
     totalDeliveries: number;
     completedDeliveries: number;
     ongoingDeliveries: number;
+  };
+  deliveries: {
+    total: number;
+    byStatus: {
+      created: number;
+      assigned: number;
+      onDelivery: number;
+      completed: number;
+      notDelivered: number;
+    };
   };
   financial: Financial;
   businesses: {

@@ -78,12 +78,12 @@ function AdminCharts({ stats }: { stats: AdminStats }) {
 }
 
 function LogisticsCharts({ stats }: { stats: LogisticsStats }) {
-  const { totalDeliveries, completedDeliveries, ongoingDeliveries } = stats.overview;
-  const other = Math.max(0, totalDeliveries - completedDeliveries - ongoingDeliveries);
   const statusData = [
-    { label: "Completate", count: completedDeliveries },
-    { label: "In corso", count: ongoingDeliveries },
-    { label: "Altro", count: other },
+    { label: "Creata", count: stats.deliveries.byStatus.created },
+    { label: "Assegnata", count: stats.deliveries.byStatus.assigned },
+    { label: "In consegna", count: stats.deliveries.byStatus.onDelivery },
+    { label: "Completata", count: stats.deliveries.byStatus.completed },
+    { label: "Non consegnata", count: stats.deliveries.byStatus.notDelivered },
   ];
 
   const businessesData = stats.businesses.slice(0, 10).map((b) => ({

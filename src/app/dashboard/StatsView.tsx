@@ -135,9 +135,19 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
     <div className="flex flex-col gap-6">
       <StatGrid>
         <StatCard title="Attività gestite" value={stats.overview.totalBusinesses} />
+        <StatCard
+          title="Raider attivi"
+          value={stats.overview.activeRaiders}
+          suffix={`/ ${stats.overview.totalRaiders}`}
+        />
         <StatCard title="Consegne totali" value={stats.overview.totalDeliveries} />
         <StatCard title="Completate" value={stats.overview.completedDeliveries} />
-        <StatCard title="In corso" value={stats.overview.ongoingDeliveries} />
+      </StatGrid>
+      <StatGrid>
+        <StatCard title="Create" value={stats.deliveries.byStatus.created} />
+        <StatCard title="Assegnate" value={stats.deliveries.byStatus.assigned} />
+        <StatCard title="In consegna" value={stats.deliveries.byStatus.onDelivery} />
+        <StatCard title="Non consegnate" value={stats.deliveries.byStatus.notDelivered} />
       </StatGrid>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
