@@ -188,7 +188,11 @@ export default function DeliveryDetail({
           <CardTitle>Riassegna raider</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
-          <Select value={selectedRaider} onValueChange={(v) => setSelectedRaider(v ?? "")}>
+          <Select
+            items={Object.fromEntries(raiders.map((r) => [r.id, `${r.name} ${r.surname}`]))}
+            value={selectedRaider}
+            onValueChange={(v) => setSelectedRaider(v ?? "")}
+          >
             <SelectTrigger className="w-64">
               <SelectValue placeholder="Seleziona raider" />
             </SelectTrigger>

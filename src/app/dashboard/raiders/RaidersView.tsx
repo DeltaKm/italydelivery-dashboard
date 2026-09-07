@@ -413,7 +413,7 @@ export default function RaidersView({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Veicolo</Label>
-              <Select value={vehicle} onValueChange={(v) => setVehicle((v ?? "") as Vehicle)}>
+              <Select items={VEHICLE_LABEL} value={vehicle} onValueChange={(v) => setVehicle((v ?? "") as Vehicle)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleziona" />
                 </SelectTrigger>
@@ -527,7 +527,7 @@ export default function RaidersView({
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Veicolo</Label>
-                <Select value={editVehicle} onValueChange={(v) => setEditVehicle((v ?? "") as Vehicle)}>
+                <Select items={VEHICLE_LABEL} value={editVehicle} onValueChange={(v) => setEditVehicle((v ?? "") as Vehicle)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>

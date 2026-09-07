@@ -26,6 +26,10 @@ const STATUS_OPTIONS = [
   { value: "DELETED", label: "Cancellata" },
 ];
 
+// Base UI's <Select.Value> shows the raw value instead of the item's label
+// unless the Root is given an items map to resolve it from.
+const STATUS_ITEMS = Object.fromEntries(STATUS_OPTIONS.map((o) => [o.value, o.label]));
+
 export default function DeliveriesFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -50,6 +54,7 @@ export default function DeliveriesFilters() {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
       <Select
+        items={STATUS_ITEMS}
         value={status}
         onValueChange={(value) => updateParams({ status: value ?? undefined })}
       >
