@@ -1,4 +1,5 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card";
+import CsvExportButton from "@/components/CsvExportButton";
 import {
   Table,
   TableHeader,
@@ -104,6 +105,20 @@ function AdminView({ stats }: { stats: AdminStats }) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top raider</CardTitle>
+            <CardAction>
+              <CsvExportButton
+                filename="top-raider.csv"
+                headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)"]}
+                rows={stats.topRaiders.map((r) => [
+                  r.name,
+                  r.totalAssigned,
+                  r.completedDeliveries,
+                  r.notDelivered,
+                  r.successRate,
+                  r.compensation,
+                ])}
+              />
+            </CardAction>
           </CardHeader>
           <CardContent>
             <Table>
@@ -204,6 +219,20 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Performance e compensi raider</CardTitle>
+          <CardAction>
+            <CsvExportButton
+              filename="performance-raider.csv"
+              headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)"]}
+              rows={stats.raiders.map((r) => [
+                r.raiderName,
+                r.totalAssigned,
+                r.completed,
+                r.notDelivered,
+                r.successRate,
+                r.compensation,
+              ])}
+            />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <Table>
@@ -265,6 +294,20 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Performance raider</CardTitle>
+          <CardAction>
+            <CsvExportButton
+              filename="performance-raider.csv"
+              headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)"]}
+              rows={stats.raiders.performance.map((r) => [
+                r.raiderName,
+                r.totalAssigned,
+                r.completed,
+                r.notDelivered,
+                r.successRate,
+                r.compensation,
+              ])}
+            />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <Table>
