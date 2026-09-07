@@ -124,3 +124,17 @@ export async function getRaider(token: string, id: string): Promise<RaiderDetail
   const data = await backendFetch<{ raider: RaiderDetail }>(`/v2/admin/raiders/${id}`, { token });
   return data.raider;
 }
+
+// Segna come pagate le consegne completate e non ancora pagate di un raider,
+// nello stesso scope (data/attività/logistica) attualmente visualizzato.
+export async function markRaiderPaid(
+  token: string,
+  role: Role,
+  id: string,
+  params: { dateFrom?: string; dateTo?: string; businessId?: string; logisticsId?: string }
+) {
+  return backendFetch<{ message: string; count: number }>(
+    `${raidersPathForRole(role)}/${id}/mark-paid`,
+    { method: "PUT", token, body: params }
+  );
+}

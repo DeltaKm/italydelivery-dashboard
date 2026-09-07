@@ -255,6 +255,7 @@ export type AdminStats = {
     name: string;
     totalOrders: number;
     completedOrders: number;
+    totalRevenue: number;
     totalCompensation: number;
   }[];
   topRaiders: {
@@ -264,6 +265,7 @@ export type AdminStats = {
     totalAssigned: number;
     notDelivered: number;
     compensation: string;
+    paidCompensation: string;
     successRate: string;
   }[];
 };
@@ -293,6 +295,7 @@ export type LogisticsStats = {
     name: string;
     totalOrders: number;
     completedOrders: number;
+    totalRevenue: number;
     totalCompensation: number;
   }[];
   raiders: {
@@ -302,6 +305,7 @@ export type LogisticsStats = {
     completed: number;
     notDelivered: number;
     compensation: string;
+    paidCompensation: string;
     successRate: string;
   }[];
 };
@@ -328,6 +332,7 @@ export type BusinessStats = {
       completed: number;
       notDelivered: number;
       compensation: string;
+      paidCompensation: string;
       successRate: string;
     }[];
   };

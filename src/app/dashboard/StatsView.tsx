@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card";
 import CsvExportButton from "@/components/CsvExportButton";
+import MarkPaidButton from "@/components/MarkPaidButton";
 import {
   Table,
   TableHeader,
@@ -85,6 +86,7 @@ function AdminView({ stats }: { stats: AdminStats }) {
                   <TableHead>Attività</TableHead>
                   <TableHead className="text-right">Ordini</TableHead>
                   <TableHead className="text-right">Completati</TableHead>
+                  <TableHead className="text-right">Fatturato</TableHead>
                   <TableHead className="text-right">Compensi raider</TableHead>
                 </TableRow>
               </TableHeader>
@@ -94,6 +96,7 @@ function AdminView({ stats }: { stats: AdminStats }) {
                     <TableCell>{b.name}</TableCell>
                     <TableCell className="text-right">{b.totalOrders}</TableCell>
                     <TableCell className="text-right">{b.completedOrders}</TableCell>
+                    <TableCell className="text-right">€ {b.totalRevenue.toFixed(2)}</TableCell>
                     <TableCell className="text-right">€ {b.totalCompensation.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
@@ -108,7 +111,7 @@ function AdminView({ stats }: { stats: AdminStats }) {
             <CardAction>
               <CsvExportButton
                 filename="top-raider.csv"
-                headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)"]}
+                headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)", "Già pagato (€)"]}
                 rows={stats.topRaiders.map((r) => [
                   r.name,
                   r.totalAssigned,
@@ -116,6 +119,7 @@ function AdminView({ stats }: { stats: AdminStats }) {
                   r.notDelivered,
                   r.successRate,
                   r.compensation,
+                  r.paidCompensation,
                 ])}
               />
             </CardAction>
@@ -130,6 +134,8 @@ function AdminView({ stats }: { stats: AdminStats }) {
                   <TableHead className="text-right">Non consegnate</TableHead>
                   <TableHead className="text-right">% successo</TableHead>
                   <TableHead className="text-right">Da pagare</TableHead>
+                  <TableHead className="text-right">Già pagato</TableHead>
+                  <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -141,6 +147,10 @@ function AdminView({ stats }: { stats: AdminStats }) {
                     <TableCell className="text-right">{r.notDelivered}</TableCell>
                     <TableCell className="text-right">{r.successRate}</TableCell>
                     <TableCell className="text-right">€ {r.compensation}</TableCell>
+                    <TableCell className="text-right">€ {r.paidCompensation}</TableCell>
+                    <TableCell>
+                      <MarkPaidButton raiderId={r.id} raiderName={r.name} amount={r.compensation} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -192,13 +202,14 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
                 <TableHead>Attività</TableHead>
                 <TableHead className="text-right">Ordini</TableHead>
                 <TableHead className="text-right">Completati</TableHead>
+                <TableHead className="text-right">Fatturato</TableHead>
                 <TableHead className="text-right">Compensi raider</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {stats.businesses.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="h-20 text-center text-muted-foreground">
                     Nessuna attività assegnata
                   </TableCell>
                 </TableRow>
@@ -208,6 +219,7 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
                   <TableCell>{b.name}</TableCell>
                   <TableCell className="text-right">{b.totalOrders}</TableCell>
                   <TableCell className="text-right">{b.completedOrders}</TableCell>
+                  <TableCell className="text-right">€ {b.totalRevenue.toFixed(2)}</TableCell>
                   <TableCell className="text-right">€ {b.totalCompensation.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
@@ -222,7 +234,7 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
           <CardAction>
             <CsvExportButton
               filename="performance-raider.csv"
-              headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)"]}
+              headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)", "Già pagato (€)"]}
               rows={stats.raiders.map((r) => [
                 r.raiderName,
                 r.totalAssigned,
@@ -230,6 +242,7 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
                 r.notDelivered,
                 r.successRate,
                 r.compensation,
+                r.paidCompensation,
               ])}
             />
           </CardAction>
@@ -244,12 +257,14 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
                 <TableHead className="text-right">Non consegnate</TableHead>
                 <TableHead className="text-right">% successo</TableHead>
                 <TableHead className="text-right">Da pagare</TableHead>
+                <TableHead className="text-right">Già pagato</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {stats.raiders.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="h-20 text-center text-muted-foreground">
                     Nessun raider con consegne nel periodo
                   </TableCell>
                 </TableRow>
@@ -262,6 +277,10 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
                   <TableCell className="text-right">{r.notDelivered}</TableCell>
                   <TableCell className="text-right">{r.successRate}</TableCell>
                   <TableCell className="text-right">€ {r.compensation}</TableCell>
+                  <TableCell className="text-right">€ {r.paidCompensation}</TableCell>
+                  <TableCell>
+                    <MarkPaidButton raiderId={r.raiderId} raiderName={r.raiderName} amount={r.compensation} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -297,7 +316,7 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
           <CardAction>
             <CsvExportButton
               filename="performance-raider.csv"
-              headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)"]}
+              headers={["Raider", "Assegnate", "Completate", "Non consegnate", "% successo", "Da pagare (€)", "Già pagato (€)"]}
               rows={stats.raiders.performance.map((r) => [
                 r.raiderName,
                 r.totalAssigned,
@@ -305,6 +324,7 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
                 r.notDelivered,
                 r.successRate,
                 r.compensation,
+                r.paidCompensation,
               ])}
             />
           </CardAction>
@@ -319,6 +339,8 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
                 <TableHead className="text-right">Non consegnate</TableHead>
                 <TableHead className="text-right">% successo</TableHead>
                 <TableHead className="text-right">Da pagare</TableHead>
+                <TableHead className="text-right">Già pagato</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -330,6 +352,10 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
                   <TableCell className="text-right">{r.notDelivered}</TableCell>
                   <TableCell className="text-right">{r.successRate}</TableCell>
                   <TableCell className="text-right">€ {r.compensation}</TableCell>
+                  <TableCell className="text-right">€ {r.paidCompensation}</TableCell>
+                  <TableCell>
+                    <MarkPaidButton raiderId={r.raiderId} raiderName={r.raiderName} amount={r.compensation} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

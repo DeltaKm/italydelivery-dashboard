@@ -37,6 +37,7 @@ import {
   setRaiderActive,
   syncRaiderBusinesses,
   syncRaiderManagedBusinesses,
+  markRaiderPaid,
   type CreateRaiderInput,
   type UpdateRaiderInput,
 } from "@/lib/raiders";
@@ -269,6 +270,17 @@ export async function setRaiderActiveAction(id: string, isActive: boolean): Prom
   return toActionResult(async () => {
     await setRaiderActive(session.token, session.role, id, isActive);
     revalidatePath("/dashboard/raiders");
+  });
+}
+
+export async function markRaiderPaidAction(
+  id: string,
+  params: { dateFrom?: string; dateTo?: string; businessId?: string; logisticsId?: string }
+): Promise<ActionResult> {
+  const session = await requireSession();
+  return toActionResult(async () => {
+    await markRaiderPaid(session.token, session.role, id, params);
+    revalidatePath("/dashboard/stats");
   });
 }
 
