@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,8 @@ export default function LoginPage() {
       style={{ background: brand.background }}
     >
       <Card className="w-full max-w-sm">
-        <CardHeader>
+        <CardHeader className="items-center text-center">
+          <Image src="/logo192.png" alt="ItalyDelivery" width={64} height={64} className="mb-1 rounded-xl" />
           <CardTitle className="text-2xl text-foreground">ItalyDelivery</CardTitle>
           <CardDescription>Pannello gestionale</CardDescription>
         </CardHeader>
