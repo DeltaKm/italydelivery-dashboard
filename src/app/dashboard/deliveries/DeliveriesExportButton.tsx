@@ -30,6 +30,8 @@ export default function DeliveriesExportButton() {
       status: searchParams.get("status") ?? undefined,
       dateFrom: searchParams.get("dateFrom") ?? undefined,
       dateTo: searchParams.get("dateTo") ?? undefined,
+      businessId: searchParams.get("businessId") ?? undefined,
+      raiderId: searchParams.get("raiderId") ?? undefined,
     });
     setLoading(false);
     if (!result.ok) {

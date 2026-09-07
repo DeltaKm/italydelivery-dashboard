@@ -30,16 +30,31 @@ const STATUS_OPTIONS = [
 // unless the Root is given an items map to resolve it from.
 const STATUS_ITEMS = Object.fromEntries(STATUS_OPTIONS.map((o) => [o.value, o.label]));
 
-export default function DeliveriesFilters() {
+export default function DeliveriesFilters({
+  businesses,
+  raiders,
+}: {
+  businesses?: { id: string; name: string }[];
+  raiders?: { id: string; name: string; surname: string }[];
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const status = searchParams.get("status") ?? "";
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
+  const businessId = searchParams.get("businessId") ?? "";
+  const raiderId = searchParams.get("raiderId") ?? "";
 
   const range: DateRange | undefined =
     dateFrom && dateTo ? { from: new Date(dateFrom), to: new Date(dateTo) } : undefined;
+
+  // Base UI's <Select.Value> shows the raw value instead of the item's label
+  // unless the Root is given an items map to resolve it from.
+  const businessItems = Object.fromEntries((businesses ?? []).map((b) => [b.id, b.name]));
+  const raiderItems = Object.fromEntries(
+    (raiders ?? []).map((r) => [r.id, `${r.name} ${r.surname}`])
+  );
 
   function updateParams(next: Record<string, string | undefined>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -109,6 +124,64 @@ export default function DeliveriesFilters() {
           size="icon-sm"
           onClick={() => updateParams({ dateFrom: undefined, dateTo: undefined })}
           aria-label="Rimuovi filtro date"
+        >
+          <X className="size-3.5" />
+        </Button>
+      )}
+
+      {businesses && businesses.length > 0 && (
+        <Select
+          items={businessItems}
+          value={businessId}
+          onValueChange={(value) => updateParams({ businessId: value || undefined })}
+        >
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Filtra per attività" />
+          </SelectTrigger>
+          <SelectContent>
+            {businesses.map((b) => (
+              <SelectItem key={b.id} value={b.id}>
+                {b.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {businessId && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => updateParams({ businessId: undefined })}
+          aria-label="Rimuovi filtro attività"
+        >
+          <X className="size-3.5" />
+        </Button>
+      )}
+
+      {raiders && raiders.length > 0 && (
+        <Select
+          items={raiderItems}
+          value={raiderId}
+          onValueChange={(value) => updateParams({ raiderId: value || undefined })}
+        >
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Filtra per raider" />
+          </SelectTrigger>
+          <SelectContent>
+            {raiders.map((r) => (
+              <SelectItem key={r.id} value={r.id}>
+                {r.name} {r.surname}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {raiderId && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => updateParams({ raiderId: undefined })}
+          aria-label="Rimuovi filtro raider"
         >
           <X className="size-3.5" />
         </Button>

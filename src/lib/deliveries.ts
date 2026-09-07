@@ -28,6 +28,8 @@ export async function listDeliveries(
     status?: string;
     dateFrom?: string;
     dateTo?: string;
+    businessId?: string;
+    raiderId?: string;
   } = {}
 ): Promise<DeliveriesResponse> {
   return backendFetch<DeliveriesResponse>(deliveriesPathForRole(role), {
@@ -38,6 +40,8 @@ export async function listDeliveries(
       status: params.status,
       dateFrom: params.dateFrom,
       dateTo: params.dateTo,
+      businessId: params.businessId,
+      raiderId: params.raiderId,
     },
   });
 }

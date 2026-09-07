@@ -117,6 +117,8 @@ export async function exportDeliveriesAction(filters: {
   status?: string;
   dateFrom?: string;
   dateTo?: string;
+  businessId?: string;
+  raiderId?: string;
 }): Promise<{ ok: true; rows: (string | number)[][] } | { ok: false; message: string }> {
   const session = await requireSession();
   try {
@@ -126,6 +128,8 @@ export async function exportDeliveriesAction(filters: {
       status: filters.status,
       dateFrom: filters.dateFrom,
       dateTo: filters.dateTo,
+      businessId: filters.businessId,
+      raiderId: filters.raiderId,
     });
     const rows = deliveries.map((d) => [
       d.orderId ?? "",
