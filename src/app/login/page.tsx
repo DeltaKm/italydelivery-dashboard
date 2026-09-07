@@ -53,9 +53,7 @@ export default function LoginPage() {
     >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl" style={{ color: brand.primary }}>
-            ItalyDelivery
-          </CardTitle>
+          <CardTitle className="text-2xl text-foreground">ItalyDelivery</CardTitle>
           <CardDescription>Pannello gestionale</CardDescription>
         </CardHeader>
         <CardContent>

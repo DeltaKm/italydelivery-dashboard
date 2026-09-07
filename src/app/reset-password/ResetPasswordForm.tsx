@@ -64,9 +64,7 @@ export default function ResetPasswordForm() {
     >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl" style={{ color: brand.primary }}>
-            Reimposta password
-          </CardTitle>
+          <CardTitle className="text-xl text-foreground">Reimposta password</CardTitle>
         </CardHeader>
         <CardContent>
           {!token ? (

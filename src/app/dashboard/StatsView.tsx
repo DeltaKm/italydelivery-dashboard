@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import type { AdminStats, LogisticsStats, BusinessStats } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
-import { brand } from "@/theme/italydelivery";
 
 function StatCard({
   title,
@@ -29,7 +28,7 @@ function StatCard({
     <Card size="sm">
       <CardContent>
         <p className="text-xs text-muted-foreground">{title}</p>
-        <p className="mt-1 text-2xl font-semibold" style={{ color: brand.primary }}>
+        <p className="mt-1 text-2xl font-semibold text-foreground">
           {display}
           {suffix && <span className="ml-1 text-base font-normal text-muted-foreground">{suffix}</span>}
         </p>

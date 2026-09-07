@@ -45,9 +45,7 @@ export default function ForgotPasswordPage() {
     >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl" style={{ color: brand.primary }}>
-            Password dimenticata
-          </CardTitle>
+          <CardTitle className="text-xl text-foreground">Password dimenticata</CardTitle>
         </CardHeader>
         <CardContent>
           {sent ? (
