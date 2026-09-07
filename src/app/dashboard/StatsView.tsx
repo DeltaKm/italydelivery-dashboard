@@ -67,7 +67,7 @@ function AdminView({ stats }: { stats: AdminStats }) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
         <StatCard
-          title="Compensi raider (completate)"
+          title="Compensi raider (consegne completate)"
           value={stats.financial.completedCompensation ?? stats.financial.totalCompensation}
           suffix="€"
         />
@@ -202,7 +202,7 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
         <StatCard
-          title="Compensi raider (completate)"
+          title="Compensi raider (consegne completate)"
           value={stats.financial.completedCompensation ?? stats.financial.totalCompensation}
           suffix="€"
         />
@@ -339,7 +339,7 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
         <StatCard
-          title="Compensi raider (completate)"
+          title="Compensi raider (consegne completate)"
           value={stats.financial.completedCompensation ?? stats.financial.totalCompensation}
           suffix="€"
         />
