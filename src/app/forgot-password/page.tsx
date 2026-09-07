@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +45,8 @@ export default function ForgotPasswordPage() {
       style={{ background: brand.background }}
     >
       <Card className="w-full max-w-sm">
-        <CardHeader>
+        <CardHeader className="justify-items-center text-center">
+          <Image src="/logo192.png" alt="ItalyDelivery" width={64} height={64} className="mb-1 rounded-xl" />
           <CardTitle className="text-xl text-foreground">Password dimenticata</CardTitle>
         </CardHeader>
         <CardContent>

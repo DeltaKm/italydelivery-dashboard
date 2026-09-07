@@ -53,7 +53,7 @@ export default function LoginPage() {
       style={{ background: brand.background }}
     >
       <Card className="w-full max-w-sm">
-        <CardHeader className="items-center text-center">
+        <CardHeader className="justify-items-center text-center">
           <Image src="/logo192.png" alt="ItalyDelivery" width={64} height={64} className="mb-1 rounded-xl" />
           <CardTitle className="text-2xl text-foreground">ItalyDelivery</CardTitle>
           <CardDescription>Pannello gestionale</CardDescription>
