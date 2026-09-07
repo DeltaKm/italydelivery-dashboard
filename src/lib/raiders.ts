@@ -138,3 +138,17 @@ export async function markRaiderPaid(
     { method: "PUT", token, body: params }
   );
 }
+
+// Annulla il pagamento delle consegne segnate come pagate di un raider,
+// nello stesso scope (data/attività/logistica) attualmente visualizzato.
+export async function unmarkRaiderPaid(
+  token: string,
+  role: Role,
+  id: string,
+  params: { dateFrom?: string; dateTo?: string; businessId?: string; logisticsId?: string }
+) {
+  return backendFetch<{ message: string; count: number }>(
+    `${raidersPathForRole(role)}/${id}/unmark-paid`,
+    { method: "PUT", token, body: params }
+  );
+}

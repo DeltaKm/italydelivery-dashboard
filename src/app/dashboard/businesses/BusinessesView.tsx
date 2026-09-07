@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Pencil, Ban, Check } from "lucide-react";
@@ -31,6 +31,7 @@ import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
 import PasswordInput from "@/components/PasswordInput";
 import EntityAvatar from "@/components/EntityAvatar";
+import DataPagination from "@/components/DataPagination";
 import type { Business } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
 import {
@@ -39,6 +40,8 @@ import {
   disableBusinessAction,
   setBusinessStatusAction,
 } from "@/lib/actions";
+
+const PAGE_SIZE = 15;
 
 export default function BusinessesView({
   businesses,
@@ -49,6 +52,7 @@ export default function BusinessesView({
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Business | null>(null);
   const [loading, setLoading] = useState(false);
@@ -127,6 +131,12 @@ export default function BusinessesView({
     );
   }, [businesses, search]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const paginated = filteredBusinesses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -163,7 +173,7 @@ export default function BusinessesView({
               </TableCell>
             </TableRow>
           )}
-          {filteredBusinesses.map((business) => (
+          {paginated.map((business) => (
             <TableRow
               key={business.id}
               className="cursor-pointer"
@@ -289,6 +299,16 @@ export default function BusinessesView({
           ))}
         </TableBody>
       </Table>
+
+      {filteredBusinesses.length > 0 && (
+        <DataPagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={filteredBusinesses.length}
+          onPageChange={setPage}
+          label="attività"
+        />
+      )}
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent>

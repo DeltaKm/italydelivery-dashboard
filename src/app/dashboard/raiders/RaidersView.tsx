@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Check, Pencil, Trash2, Building2 } from "lucide-react";
@@ -47,6 +47,7 @@ import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
 import PasswordInput from "@/components/PasswordInput";
 import EntityAvatar from "@/components/EntityAvatar";
+import DataPagination from "@/components/DataPagination";
 import type { RaiderListItem, Business, Vehicle } from "@/lib/types";
 import type { Role } from "@/lib/session-constants";
 import {
@@ -87,6 +88,8 @@ const REMOVE_COPY: Record<Role, { title: string; description: string }> = {
   RAIDER: { title: "Rimuovere?", description: "" },
 };
 
+const PAGE_SIZE = 15;
+
 export default function RaidersView({
   raiders,
   businesses,
@@ -98,6 +101,7 @@ export default function RaidersView({
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [approving, setApproving] = useState<string | null>(null);
@@ -121,6 +125,12 @@ export default function RaidersView({
       (r) => `${r.name} ${r.surname}`.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q)
     );
   }, [activeRaiders, search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const paginated = active.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function onCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -323,7 +333,7 @@ export default function RaidersView({
               </TableCell>
             </TableRow>
           )}
-          {active.map((r) => (
+          {paginated.map((r) => (
             <TableRow
               key={r.id}
               className={role === "ADMIN" ? "cursor-pointer" : undefined}
@@ -396,6 +406,16 @@ export default function RaidersView({
           ))}
         </TableBody>
       </Table>
+
+      {active.length > 0 && (
+        <DataPagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={active.length}
+          onPageChange={setPage}
+          label="raider"
+        />
+      )}
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent>

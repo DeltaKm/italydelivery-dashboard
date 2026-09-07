@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Users, Pencil, Ban, Plus } from "lucide-react";
@@ -12,6 +12,7 @@ import StatusBadge from "@/components/StatusBadge";
 import BadgeListOverflow from "@/components/BadgeListOverflow";
 import PasswordInput from "@/components/PasswordInput";
 import EntityAvatar from "@/components/EntityAvatar";
+import DataPagination from "@/components/DataPagination";
 import {
   Table,
   TableHeader,
@@ -47,6 +48,8 @@ import {
   createLogisticsAction,
 } from "@/lib/actions";
 
+const PAGE_SIZE = 15;
+
 export default function LogisticsView({
   logistics,
   businesses,
@@ -61,6 +64,22 @@ export default function LogisticsView({
   const [editingName, setEditingName] = useState<LogisticsAccount | null>(null);
   const [loading, setLoading] = useState(false);
   const [disabling, setDisabling] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return logistics;
+    return logistics.filter(
+      (r) => `${r.name} ${r.surname}`.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q)
+    );
+  }, [logistics, search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function onCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -141,11 +160,17 @@ export default function LogisticsView({
         Da qui assegni loro anche le attività da gestire.
       </p>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <Button className="gap-1.5" onClick={() => setOpen(true)}>
           <Plus className="size-4" />
           Nuovo Logistics
         </Button>
+        <Input
+          placeholder="Cerca per nome o email"
+          className="w-64"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <Table>
@@ -159,14 +184,14 @@ export default function LogisticsView({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {logistics.length === 0 && (
+          {filtered.length === 0 && (
             <TableRow>
               <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                 Nessun account Logistics
               </TableCell>
             </TableRow>
           )}
-          {logistics.map((r) => (
+          {paginated.map((r) => (
             <TableRow
               key={r.id}
               className="cursor-pointer"
@@ -232,6 +257,16 @@ export default function LogisticsView({
           ))}
         </TableBody>
       </Table>
+
+      {filtered.length > 0 && (
+        <DataPagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={filtered.length}
+          onPageChange={setPage}
+          label="account Logistics"
+        />
+      )}
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent>

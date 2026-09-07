@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card";
 import CsvExportButton from "@/components/CsvExportButton";
-import MarkPaidButton from "@/components/MarkPaidButton";
+import RaiderPaymentActions from "@/components/RaiderPaymentActions";
 import {
   Table,
   TableHeader,
@@ -149,7 +149,12 @@ function AdminView({ stats }: { stats: AdminStats }) {
                     <TableCell className="text-right">€ {r.compensation}</TableCell>
                     <TableCell className="text-right">€ {r.paidCompensation}</TableCell>
                     <TableCell>
-                      <MarkPaidButton raiderId={r.id} raiderName={r.name} amount={r.compensation} />
+                      <RaiderPaymentActions
+                        raiderId={r.id}
+                        raiderName={r.name}
+                        amount={r.compensation}
+                        paidAmount={r.paidCompensation}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -279,7 +284,12 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
                   <TableCell className="text-right">€ {r.compensation}</TableCell>
                   <TableCell className="text-right">€ {r.paidCompensation}</TableCell>
                   <TableCell>
-                    <MarkPaidButton raiderId={r.raiderId} raiderName={r.raiderName} amount={r.compensation} />
+                    <RaiderPaymentActions
+                      raiderId={r.raiderId}
+                      raiderName={r.raiderName}
+                      amount={r.compensation}
+                      paidAmount={r.paidCompensation}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -354,7 +364,12 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
                   <TableCell className="text-right">€ {r.compensation}</TableCell>
                   <TableCell className="text-right">€ {r.paidCompensation}</TableCell>
                   <TableCell>
-                    <MarkPaidButton raiderId={r.raiderId} raiderName={r.raiderName} amount={r.compensation} />
+                    <RaiderPaymentActions
+                      raiderId={r.raiderId}
+                      raiderName={r.raiderName}
+                      amount={r.compensation}
+                      paidAmount={r.paidCompensation}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

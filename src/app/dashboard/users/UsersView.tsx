@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -30,10 +30,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import StatusBadge from "@/components/StatusBadge";
+import DataPagination from "@/components/DataPagination";
 import type { UserAccount } from "@/lib/types";
 import { setUserStatusAction, setUserRoleAction } from "@/lib/actions";
 
 const ALL_ROLES: UserAccount["role"][] = ["ADMIN", "LOGISTICS", "BUSINESS", "RAIDER", "USER"];
+const PAGE_SIZE = 15;
 
 type PendingRoleChange = { user: UserAccount; newRole: UserAccount["role"] };
 
@@ -43,6 +45,7 @@ export default function UsersView({ users }: { users: UserAccount[] }) {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserAccount["role"] | "">("");
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
+  const [page, setPage] = useState(1);
 
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -52,6 +55,12 @@ export default function UsersView({ users }: { users: UserAccount[] }) {
       return true;
     });
   }, [users, search, roleFilter]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, roleFilter]);
+
+  const paginated = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function toggle(userId: string, expired: boolean) {
     setPendingStatus(userId);
@@ -113,7 +122,7 @@ export default function UsersView({ users }: { users: UserAccount[] }) {
               </TableCell>
             </TableRow>
           )}
-          {filteredUsers.map((user) => (
+          {paginated.map((user) => (
             <TableRow key={user.id}>
               <TableCell className="font-medium">{user.email}</TableCell>
               <TableCell>
@@ -154,6 +163,16 @@ export default function UsersView({ users }: { users: UserAccount[] }) {
           ))}
         </TableBody>
       </Table>
+
+      {filteredUsers.length > 0 && (
+        <DataPagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={filteredUsers.length}
+          onPageChange={setPage}
+          label="utenti"
+        />
+      )}
 
       <AlertDialog
         open={!!pendingRoleChange}
