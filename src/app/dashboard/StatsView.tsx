@@ -27,10 +27,10 @@ function StatCard({
       : Number(value).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <Card size="sm">
-      <CardContent>
+    <Card size="sm" className="min-w-0">
+      <CardContent className="min-w-0">
         <p className="text-xs text-muted-foreground">{title}</p>
-        <p className="mt-1 text-2xl font-semibold text-foreground">
+        <p className="mt-1 break-words text-xl font-semibold text-foreground sm:text-2xl">
           {display}
           {suffix && <span className="ml-1 text-base font-normal text-muted-foreground">{suffix}</span>}
         </p>
@@ -64,7 +64,7 @@ function AdminView({ stats }: { stats: AdminStats }) {
         <StatCard title="Non consegnate" value={stats.deliveries.byStatus.notDelivered} />
       </StatGrid>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
         <StatCard
           title="Compensi raider (completate)"
@@ -199,7 +199,7 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
         <StatCard title="In consegna" value={stats.deliveries.byStatus.onDelivery} />
         <StatCard title="Non consegnate" value={stats.deliveries.byStatus.notDelivered} />
       </StatGrid>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
         <StatCard
           title="Compensi raider (completate)"
@@ -336,7 +336,7 @@ function BusinessView({ stats }: { stats: BusinessStats }) {
         <StatCard title="In corso" value={stats.orders.byStatus.onDelivery} />
         <StatCard title="Non consegnati" value={stats.orders.byStatus.notDelivered} />
       </StatGrid>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Ricavi totali" value={stats.financial.totalRevenue} suffix="€" />
         <StatCard
           title="Compensi raider (completate)"
