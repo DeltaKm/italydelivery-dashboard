@@ -6,6 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import DeliveriesTable from "./DeliveriesTable";
 import DeliveriesFilters from "./DeliveriesFilters";
 import NewDeliveryButton from "./NewDeliveryButton";
+import DeliveriesExportButton from "./DeliveriesExportButton";
 
 const PAGE_SIZE = 20;
 
@@ -34,7 +35,12 @@ export default async function DeliveriesPage(
     <div>
       <PageHeader
         title="Consegne"
-        actions={canCreateDelivery(session.role) ? <NewDeliveryButton /> : undefined}
+        actions={
+          <div className="flex items-center gap-2">
+            <DeliveriesExportButton />
+            {canCreateDelivery(session.role) && <NewDeliveryButton />}
+          </div>
+        }
       />
       <DeliveriesFilters />
       <DeliveriesTable

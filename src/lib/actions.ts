@@ -9,6 +9,7 @@ import {
   reassignDelivery,
   updateDelivery,
   deleteDelivery,
+  listDeliveries,
   type CreateDeliveryInput,
   type UpdateDeliveryInput,
 } from "@/lib/deliveries";
@@ -107,6 +108,44 @@ export async function deleteDeliveryAction(id: string): Promise<ActionResult> {
     await deleteDelivery(session.token, session.role, id);
     revalidatePath("/dashboard/deliveries");
   });
+}
+
+// A differenza delle altre azioni, non è una mutazione: recupera tutte le
+// consegne che rispettano i filtri correnti (non solo la pagina visualizzata)
+// per l'export CSV.
+export async function exportDeliveriesAction(filters: {
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}): Promise<{ ok: true; rows: (string | number)[][] } | { ok: false; message: string }> {
+  const session = await requireSession();
+  try {
+    const { deliveries } = await listDeliveries(session.token, session.role, {
+      limit: 5000,
+      offset: 0,
+      status: filters.status,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
+    });
+    const rows = deliveries.map((d) => [
+      d.orderId ?? "",
+      d.name ?? "",
+      d.recipient ?? "",
+      d.deliveryAddress ?? "",
+      new Date(d.schedulingDelivery).toLocaleString("it-IT"),
+      d.status,
+      d.assignedToRaider ? `${d.assignedToRaider.name} ${d.assignedToRaider.surname}` : "",
+      d.compensation?.toFixed(2) ?? "0.00",
+      d.totalPaid?.toFixed(2) ?? "0.00",
+    ]);
+    return { ok: true, rows };
+  } catch (error) {
+    unstable_rethrow(error);
+    return {
+      ok: false,
+      message: error instanceof BackendError ? error.message : (error as Error).message,
+    };
+  }
 }
 
 export async function createBusinessAction(input: CreateBusinessInput): Promise<ActionResult> {
