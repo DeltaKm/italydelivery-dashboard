@@ -78,6 +78,19 @@ function AdminView({ stats }: { stats: AdminStats }) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top attività</CardTitle>
+            <CardAction>
+              <CsvExportButton
+                filename="top-attivita.csv"
+                headers={["Attività", "Ordini", "Completati", "Fatturato (€)", "Compensi raider (€)"]}
+                rows={stats.topBusinesses.map((b) => [
+                  b.name,
+                  b.totalOrders,
+                  b.completedOrders,
+                  b.totalRevenue.toFixed(2),
+                  b.totalCompensation.toFixed(2),
+                ])}
+              />
+            </CardAction>
           </CardHeader>
           <CardContent>
             <Table>
@@ -199,6 +212,19 @@ function LogisticsAdminView({ stats }: { stats: LogisticsStats }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Attività gestite</CardTitle>
+          <CardAction>
+            <CsvExportButton
+              filename="attivita-gestite.csv"
+              headers={["Attività", "Ordini", "Completati", "Fatturato (€)", "Compensi raider (€)"]}
+              rows={stats.businesses.map((b) => [
+                b.name,
+                b.totalOrders,
+                b.completedOrders,
+                b.totalRevenue.toFixed(2),
+                b.totalCompensation.toFixed(2),
+              ])}
+            />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <Table>
