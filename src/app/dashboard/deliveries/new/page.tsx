@@ -11,7 +11,7 @@ export default async function NewDeliveryPage() {
   if (!canCreateDelivery(session.role)) redirect("/dashboard/deliveries");
 
   const businesses =
-    session.role === "LOGISTICS"
+    session.role === "LOGISTICS" || session.role === "ADMIN"
       ? (await listBusinesses(session.token, session.role)).businesses
       : [];
 

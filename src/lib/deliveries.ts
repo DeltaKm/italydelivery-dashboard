@@ -54,7 +54,7 @@ export async function getDelivery(token: string, role: Role, id: string): Promis
 }
 
 export type CreateDeliveryInput = {
-  businessId?: string; // richiesto solo per LOGISTICS
+  businessId?: string; // richiesto per LOGISTICS e ADMIN, implicito per BUSINESS
   orderId?: string;
   schedulingDelivery: string;
   customerName: string;
@@ -75,8 +75,8 @@ export async function createDelivery(
   role: Role,
   input: CreateDeliveryInput
 ): Promise<Delivery> {
-  if (role !== "LOGISTICS" && role !== "BUSINESS") {
-    throw new Error("Solo Logistics e Business possono creare consegne");
+  if (role !== "LOGISTICS" && role !== "BUSINESS" && role !== "ADMIN") {
+    throw new Error("Solo Admin, Logistics e Business possono creare consegne");
   }
   const data = await backendFetch<{ delivery: Delivery }>(deliveriesPathForRole(role), {
     method: "POST",

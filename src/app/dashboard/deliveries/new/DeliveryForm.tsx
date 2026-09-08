@@ -33,6 +33,10 @@ export default function DeliveryForm({
   const [businessId, setBusinessId] = useState<string>("");
   const [paymentType, setPaymentType] = useState<string>("");
 
+  // Base UI's <Select.Value> shows the raw value instead of the item's label
+  // unless the Root is given an items map to resolve it from.
+  const businessItems = Object.fromEntries(businesses.map((b) => [b.id, b.name]));
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -41,7 +45,7 @@ export default function DeliveryForm({
       toast.error("Seleziona data e ora della consegna");
       return;
     }
-    if (role === "LOGISTICS" && !businessId) {
+    if ((role === "LOGISTICS" || role === "ADMIN") && !businessId) {
       toast.error("Seleziona l'attività");
       return;
     }
@@ -55,7 +59,7 @@ export default function DeliveryForm({
 
     setLoading(true);
     const result = await createDeliveryAction({
-      businessId: role === "LOGISTICS" ? businessId : undefined,
+      businessId: role === "LOGISTICS" || role === "ADMIN" ? businessId : undefined,
       orderId: String(formData.get("orderId") || "") || undefined,
       schedulingDelivery,
       customerName: String(formData.get("customerName")),
@@ -83,10 +87,10 @@ export default function DeliveryForm({
     <Card className="max-w-2xl">
       <CardContent>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          {role === "LOGISTICS" && (
+          {(role === "LOGISTICS" || role === "ADMIN") && (
             <div className="flex flex-col gap-1.5">
               <Label>Attività</Label>
-              <Select value={businessId} onValueChange={(v) => setBusinessId(v ?? "")}>
+              <Select items={businessItems} value={businessId} onValueChange={(v) => setBusinessId(v ?? "")}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleziona attività" />
                 </SelectTrigger>
