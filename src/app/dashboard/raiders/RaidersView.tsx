@@ -88,6 +88,21 @@ const REMOVE_COPY: Record<Role, { title: string; description: string }> = {
   RAIDER: { title: "Rimuovere?", description: "" },
 };
 
+// Un raider Logistics senza più nessuna attività assegnata non ha nulla da
+// "scollegare": in quel caso l'azione elimina davvero il raider (vedi
+// backend), quindi il dialog deve dirlo chiaramente invece del testo
+// generico "non viene eliminato".
+function removeCopyFor(role: Role, raider: RaiderListItem): { title: string; description: string } {
+  if (role === "LOGISTICS" && (raider.businesses?.length ?? 0) === 0) {
+    return {
+      title: "Eliminare definitivamente questo raider?",
+      description:
+        "Non ha più nessuna attività assegnata: verrà eliminato del tutto insieme al suo account. Non è possibile se ha consegne attive.",
+    };
+  }
+  return REMOVE_COPY[role];
+}
+
 const PAGE_SIZE = 15;
 
 export default function RaidersView({
@@ -391,8 +406,8 @@ export default function RaidersView({
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>{REMOVE_COPY[role].title}</AlertDialogTitle>
-                        <AlertDialogDescription>{REMOVE_COPY[role].description}</AlertDialogDescription>
+                        <AlertDialogTitle>{removeCopyFor(role, r).title}</AlertDialogTitle>
+                        <AlertDialogDescription>{removeCopyFor(role, r).description}</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Annulla</AlertDialogCancel>
