@@ -82,7 +82,8 @@ const REMOVE_COPY: Record<Role, { title: string; description: string }> = {
   },
   BUSINESS: {
     title: "Rimuovere questo raider?",
-    description: "Rimuove solo il collegamento con la tua attività, il raider non viene eliminato.",
+    description:
+      "Rimuove il collegamento con la tua attività. Se lo avevi creato tu e non ha altre attività assegnate, verrà eliminato del tutto insieme al suo account.",
   },
   USER: { title: "Rimuovere?", description: "" },
   RAIDER: { title: "Rimuovere?", description: "" },
